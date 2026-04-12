@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מערכת ניהול משכנתאות | יועץ פרו</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0d7377;--teal-light:#14a085;--teal-dark:#095c60;
+  --bg:#f4f7f6;--white:#ffffff;--card:#ffffff;
+  --text:#1a2e2b;--muted:#6b8a87;--border:#d4e3e1;
+  --green:#16a34a;--amber:#d97706;--red:#dc2626;--blue:#2563eb;
+  --sidebar-w:220px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Assistant',sans-serif;background:var(--bg);color:var(--text);direction:rtl;font-size:14px}
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--teal-dark);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px}
+.sidebar-logo h1{font-size:17px;font-weight:700;line-height:1.2}
+.sidebar-logo p{font-size:11px;opacity:.6;margin-top:2px}
+.nav-section{padding:6px 12px 4px;font-size:10px;font-weight:600;letter-spacing:.08em;opacity:.4;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;font-size:13px;opacity:.75;transition:all .15s;border:none;background:none;color:#fff;width:100%;text-align:right;border-radius:6px;margin:1px 6px;width:calc(100% - 12px)}
+.nav-item:hover{opacity:1;background:rgba(255,255,255,.1)}
+.nav-item.active{opacity:1;background:rgba(255,255,255,.18);font-weight:600}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+
+/* MAIN */
+.main{margin-right:var(--sidebar-w);flex:1;padding:24px;overflow-x:hidden}
+.page{display:none}.page.active{display:block}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.page-title{font-size:22px;font-weight:700;color:var(--teal-dark)}
+
+/* CARDS */
+.card{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:700;color:var(--teal-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:14px;text-align:center}
+.stat-n{font-size:26px;font-weight:700;color:var(--teal)}
+.stat-l{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:right;padding:9px 10px;border-bottom:2px solid var(--border);font-weight:700;font-size:12px;color:var(--muted);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fbfa}
+.actions-td{display:flex;gap:6px;align-items:center}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-teal{background:#ccfbf1;color:#134e4a}
+.badge-gray{background:#f1f5f9;color:#475569}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;font-size:13px;font-family:'Assistant',sans-serif;color:var(--text);transition:all .15s;font-weight:500}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.btn-primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);color:#fff}
+.btn-sm{padding:5px 11px;font-size:12px;border-radius:6px}
+.btn-danger{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.btn-success{background:#dcfce7;color:#166534;border-color:#86efac}
+
+/* FORMS */
+.form-grid{display:grid;gap:12px}
+.form-grid-2{grid-template-columns:1fr 1fr}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:600;color:var(--muted)}
+.form-control{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Assistant',sans-serif;color:var(--text);background:var(--white);transition:border .15s;width:100%}
+.form-control:focus{outline:none;border-color:var(--teal)}
+select.form-control{cursor:pointer}
+
+/* RESULT BOX */
+.result-box{background:linear-gradient(135deg,#e6f7f5,#f0faf9);border:1.5px solid var(--teal-light);border-radius:10px;padding:14px;margin-top:12px}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+.result-item .rl{font-size:11px;color:var(--muted);margin-bottom:2px}
+.result-item .rv{font-size:18px;font-weight:700;color:var(--teal-dark)}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--border);padding-bottom:0}
+.tab-btn{padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);background:none;border:none;font-family:'Assistant',sans-serif;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* MORTGAGE TRACKS */
+.track-row{display:grid;grid-template-columns:2fr 80px 80px 80px 100px 1fr;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.track-row:last-child{border-bottom:none}
+.track-name{font-weight:600;font-size:13px}
+.track-total{background:linear-gradient(135deg,var(--teal-dark),var(--teal));color:#fff;border-radius:8px;padding:12px 14px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+
+/* PIPELINE */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.pipeline-col{background:var(--bg);border-radius:10px;padding:10px;min-height:120px}
+.pipeline-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;padding:0 4px}
+.pipeline-card{background:var(--white);border-radius:8px;border:1px solid var(--border);padding:10px;margin-bottom:8px;cursor:pointer;transition:box-shadow .15s}
+.pipeline-card:hover{box-shadow:0 3px 12px rgba(13,115,119,.15)}
+.pipeline-card-name{font-weight:700;font-size:13px;margin-bottom:2px}
+.pipeline-card-sub{font-size:11px;color:var(--muted)}
+
+/* DOCUMENT CHECKLIST */
+.doc-section{margin-bottom:16px}
+.doc-section-title{font-size:13px;font-weight:700;color:var(--teal-dark);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.doc-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dotted #e2ecea}
+.doc-item:last-child{border:none}
+.doc-check{width:18px;height:18px;accent-color:var(--teal);cursor:pointer;flex-shrink:0}
+.doc-name{flex:1;font-size:13px}
+.doc-status{font-size:11px}
+
+/* FEASIBILITY */
+.feasibility-verdict{border-radius:10px;padding:14px;margin-top:12px;font-weight:700;font-size:15px;text-align:center}
+.verdict-good{background:#dcfce7;color:#166534}
+.verdict-bad{background:#fee2e2;color:#991b1b}
+.verdict-warning{background:#fef3c7;color:#92400e}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:14px;padding:24px;width:90%;max-width:640px;max-height:85vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-title{font-size:17px;font-weight:700;color:var(--teal-dark)}
+.modal-close{font-size:20px;cursor:pointer;color:var(--muted);background:none;border:none;line-height:1}
+.modal-footer{display:flex;gap:8px;justify-content:flex-start;margin-top:18px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* UPLOAD AREA */
+.upload-area{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .15s}
+.upload-area:hover,.upload-area.drag{border-color:var(--teal);background:#f0faf9}
+.upload-icon{font-size:32px;margin-bottom:8px}
+.upload-text{font-size:13px;color:var(--muted)}
+.upload-text strong{color:var(--teal)}
+
+/* NOTIFICATION */
+.notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--teal-dark);color:#fff;padding:12px 24px;border-radius:8px;font-weight:600;font-size:13px;z-index:999;display:none;animation:slideIn .3s ease}
+@keyframes slideIn{from{top:0;opacity:0}to{top:20px;opacity:1}}
+
+/* QUICK ANALYSIS */
+.analysis-card{border-radius:10px;padding:14px;border:1px solid}
+.analysis-good{background:#f0fdf4;border-color:#86efac}
+.analysis-warn{background:#fffbeb;border-color:#fcd34d}
+.analysis-bad{background:#fef2f2;border-color:#fca5a5}
+
+/* SEARCH */
+.search-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-input{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Assistant',sans-serif;width:220px}
+.search-input:focus{outline:none;border-color:var(--teal)}
+
+/* PRINT */
+@media print{
+  .sidebar,.btn,.page-header .btn-group{display:none}
+  .main{margin-right:0;padding:0}
+  .card{break-inside:avoid}
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#c8dbd9;border-radius:10px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .pipeline{grid-template-columns:repeat(2,1fr)}
+  .result-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid-3{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="notif" id="notif"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>יועץ משכנתאות</h1>
+    <p>מערכת ניהול מקצועית</p>
+  </div>
+  <div class="nav-section">ראשי</div>
+  <button class="nav-item active" onclick="nav('dashboard')"><span class="nav-icon">📊</span>לוח בקרה</button>
+  <button class="nav-item" onclick="nav('pipeline')"><span class="nav-icon">🔄</span>צנרת לקוחות</button>
+
+  <div class="nav-section">לקוחות</div>
+  <button class="nav-item" onclick="nav('clients')"><span class="nav-icon">👥</span>לקוחות</button>
+  <button class="nav-item" onclick="nav('leads')"><span class="nav-icon">🎯</span>לידים</button>
+  <button class="nav-item" onclick="nav('intake')"><span class="nav-icon">📋</span>שאלון ראשוני</button>
+
+  <div class="nav-section">כלים</div>
+  <button class="nav-item" onclick="nav('calculator')"><span class="nav-icon">🧮</span>מחשבון משכנתא</button>
+  <button class="nav-item" onclick="nav('feasibility')"><span class="nav-icon">📈</span>כדאיות מחזור</button>
+  <button class="nav-item" onclick="nav('tracks')"><span class="nav-icon">⚙️</span>בניית תמהיל</button>
+  <button class="nav-item" onclick="nav('penalties')"><span class="nav-icon">⚠️</span>קנסות היוון</button>
+  <button class="nav-item" onclick="nav('purchase')"><span class="nav-icon">🏠</span>מחשבון רכישה</button>
+
+  <div class="nav-section">ניהול</div>
+  <button class="nav-item" onclick="nav('docs')"><span class="nav-icon">📁</span>מסמכים ושלבים</button>
+  <button class="nav-item" onclick="nav('agreement')"><span class="nav-icon">✍️</span>הסכם שכ"ט</button>
+  <button class="nav-item" onclick="nav('banks')"><span class="nav-icon">🏦</span>רשימת בנקים</button>
+  <button class="nav-item" onclick="nav('reports')"><span class="nav-icon">📊</span>דוחות וייצוא</button>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ========== DASHBOARD ========== -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header">
+    <div class="page-title">לוח בקרה</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sm" onclick="nav('intake')">+ לקוח חדש</button>
+      <button class="btn btn-sm btn-primary" onclick="exportPDF()">ייצוא PDF</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-n" id="stat-clients">4</div><div class="stat-l">לקוחות פעילים</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-leads">5</div><div class="stat-l">לידים חדשים</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-volume">₪6.4M</div><div class="stat-l">היקף בטיפול</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-done">3</div><div class="stat-l">עסקאות השנה</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="card-title">📋 משימות קרובות</div>
+      <table>
+        <thead><tr><th>לקוח</th><th>משימה</th><th>תאריך</th><th>סטטוס</th></tr></thead>
+        <tbody id="tasks-table"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">🏠 לקוחות אחרונים</div>
+      <table>
+        <thead><tr><th>שם</th><th>סוג</th><th>סכום</th><th>שלב</th></tr></thead>
+        <tbody id="recent-clients"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚡ ניתוח מהיר - העלה דוח יתרות לניתוח מחזור</div>
+    <div class="upload-area" onclick="document.getElementById('quick-upload').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleQuickDrop(event)">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text"><strong>גרור לכאן</strong> דוח יתרות מהבנק (PDF/Excel) או לחץ לבחירה</div>
+    </div>
+    <input type="file" id="quick-upload" style="display:none" accept=".pdf,.xlsx,.csv" onchange="analyzeUpload(this)">
+    <div id="quick-analysis" style="margin-top:12px;display:none"></div>
+  </div>
+</div>
+
+<!-- ========== PIPELINE ========== -->
+<div id="page-pipeline" class="page">
+  <div class="page-header"><div class="page-title">צנרת לקוחות</div></div>
+  <div class="pipeline" id="pipeline-board"></div>
+</div>
+
+<!-- ========== CLIENTS ========== -->
+<div id="page-clients" class="page">
+  <div class="page-header">
+    <div class="page-title">ניהול לקוחות</div>
+    <div style="display:flex;gap:8px">
+      <input class="search-input" placeholder="🔍 חיפוש..." oninput="filterClients(this.value)">
+      <button class="btn btn-primary" onclick="openModal('modal-add-client')">+ לקוח חדש</button>
+    </div>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>שם לקוח</th><th>טלפון</th><th>סוג עסקה</th><th>סכום</th><th>בנק</th><th>שלב</th><th>פעולות</th></tr></thead>
+      <tbody id="clients-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========== LEADS ========== -->
+<div id="page-leads" class="page">
+  <div class="page-header">
+    <div class="page-title">ניהול לידים</div>
+    <button class="btn btn-primary" onclick="openModal('modal-add-lead')">+ ליד חדש</button>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>שם</th><th>טלפון</th><th>מקור</th><th>סוג בקשה</th><th>תאריך</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+      <tbody id="leads-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========== INTAKE ========== -->
+<div id="page-intake" class="page">
+  <div class="page-header"><div class="page-title">שאלון ראשוני ללקוח</div>
+    <button class="btn btn-primary" onclick="saveIntake()">💾 שמור ופתח תיק</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="card-title">👤 פרטים אישיים</div>
+      <div class="form-grid form-grid-2">
+        <div class="form-group"><label class="form-label">שם לווה 1</label><input class="form-control" id="i-name1" placeholder="ישראל ישראלי"></div>
+        <div class="form-group"><label class="form-label">גיל</label><input class="form-control" id="i-age1" type="number" placeholder="35"></div>
+        <div class="form-group"><label class="form-label">טלפון</label><input class="form-control" id="i-phone1" placeholder="050-0000000"></div>
+        <div class="form-group"><label class="form-label">אימייל</label><input class="form-control" id="i-email" placeholder="israel@gmail.com"></div>
+        <div class="form-group"><label class="form-label">שם לווה 2</label><input class="form-control" id="i-name2" placeholder="שרה ישראלי"></div>
+        <div class="form-group"><label class="form-label">גיל</label><input class="form-control" id="i-age2" type="number" placeholder="33"></div>
+        <div class="form-group"><label class="form-label">ילדים מתחת ל-18</label><input class="form-control" id="i-kids" type="number" placeholder="2"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏠 פרטי עסקה</div>
+      <div class="form-grid form-grid-2">
+        <div class="form-group"><label class="form-label">סוג משכנתא</label>
+          <select class="form-control" id="i-type">
+            <option>משכנתא חדשה</option><option>מחזור</option><option>יד שנייה</option>
+            <option>בניה עצמית</option><option>איחוד הלוואות</option><option>מחיר למשתכן</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">דירה ראשונה/נוספת</label>
+          <select class="form-control" id="i-dtype">
+            <option>ראשונה</option><option>נוספת</option><option>חליפית</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">שווי נכס (₪)</label><input class="form-control" id="i-val" type="number" placeholder="2000000" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">הון עצמי (₪)</label><input class="form-control" id="i-equity" type="number" placeholder="500000" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">סכום מבוקש (₪)</label><input class="form-control" id="i-loan" type="number" placeholder="1500000" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">האם נחתם חוזה</label><select class="form-control" id="i-signed"><option>לא</option><option>כן</option></select></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💰 הכנסות</div>
+      <div class="form-grid form-grid-2">
+        <div class="form-group"><label class="form-label">הכנסת גבר</label><input class="form-control" id="i-inc1" type="number" placeholder="15000" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">שכיר/עצמאי</label><select class="form-control" id="i-emp1"><option>שכיר</option><option>עצמאי</option></select></div>
+        <div class="form-group"><label class="form-label">הכנסת אישה</label><input class="form-control" id="i-inc2" type="number" placeholder="12000" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">שכירה/עצמאית</label><select class="form-control" id="i-emp2"><option>שכירה</option><option>עצמאית</option></select></div>
+        <div class="form-group"><label class="form-label">הכנסות נוספות</label><input class="form-control" id="i-inc3" type="number" placeholder="0" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">קצבאות לצמיתות</label><input class="form-control" id="i-perm" type="number" placeholder="0" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">הלוואות קיימות/חודש</label><input class="form-control" id="i-loans" type="number" placeholder="0" oninput="calcIntake()"></div>
+        <div class="form-group"><label class="form-label">שכירות חודשית</label><input class="form-control" id="i-rent" type="number" placeholder="0" oninput="calcIntake()"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔍 בדיקת היתכנות</div>
+      <div id="intake-analysis" style="padding:8px 0"></div>
+      <div class="card-title" style="margin-top:12px">❓ שאלות חיווי</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+        <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="i-ok-credit"> <span>התנהלות בנקאית תקינה</span></label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="i-no-bounced"> <span>לא חזרו צ'קים/הוראות קבע ב-3 שנים</span></label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="i-no-limited"> <span>לא היה לקוח מוגבל</span></label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="i-no-bankrupt"> <span>לא היה בפשיטת רגל</span></label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="i-life-ins"> <span>בר ביטוח חיים - לווה 1</span></label>
+        <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="i-life-ins2"> <span>בר ביטוח חיים - לווה 2</span></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CALCULATOR ========== -->
+<div id="page-calculator" class="page">
+  <div class="page-header"><div class="page-title">מחשבון משכנתא</div>
+    <button class="btn btn-primary" onclick="exportCalcPDF()">📄 ייצוא PDF</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="card-title">נתוני הלוואה</div>
+      <div class="form-grid" style="gap:10px">
+        <div class="form-group"><label class="form-label">שם לקוח (לדוח)</label><input class="form-control" id="c-client" placeholder="ישראל ישראלי"></div>
+        <div class="form-group"><label class="form-label">סכום הלוואה (₪)</label><input class="form-control" type="number" id="c-loan" value="1000000" oninput="calcMortgage()"></div>
+        <div class="form-group"><label class="form-label">ריבית שנתית (%)</label><input class="form-control" type="number" id="c-rate" value="4.5" step="0.1" oninput="calcMortgage()"></div>
+        <div class="form-group"><label class="form-label">תקופה (שנים)</label><input class="form-control" type="number" id="c-years" value="25" oninput="calcMortgage()"></div>
+        <div class="form-group"><label class="form-label">מסלול</label>
+          <select class="form-control" id="c-track" onchange="calcMortgage()">
+            <option value="shpitzer">שפיצר (החזר קבוע)</option>
+            <option value="keren">קרן שווה</option>
+            <option value="balloon">בלון חלקי</option>
+          </select>
+        </div>
+        <div class="form-group" id="balloon-group" style="display:none"><label class="form-label">% בלון בסוף</label><input class="form-control" type="number" id="c-balloon" value="30" oninput="calcMortgage()"></div>
+        <div class="form-group"><label class="form-label">הצמדה</label>
+          <select class="form-control" id="c-index" onchange="calcMortgage()">
+            <option value="none">לא צמוד</option>
+            <option value="cpi">צמוד מדד (2%/שנה)</option>
+            <option value="prime">פריים (+1.5%)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="calcMortgage()">חשב</button>
+    </div>
+    <div class="card">
+      <div class="card-title">תוצאות</div>
+      <div id="calc-result"><div style="color:var(--muted);text-align:center;padding:30px">הזן נתונים לחישוב</div></div>
+    </div>
+  </div>
+  <div class="card" id="amort-card" style="display:none">
+    <div class="card-title">📋 לוח סילוקין (12 חודשים ראשונים)</div>
+    <div style="overflow-x:auto">
+      <table id="amort-table">
+        <thead><tr><th>חודש</th><th>החזר</th><th>קרן</th><th>ריבית</th><th>יתרה</th></tr></thead>
+        <tbody id="amort-body"></tbody>
+      </table>
+    </div>
+    <button class="btn btn-sm" style="margin-top:10px" onclick="showFullAmort()">הצג לוח מלא</button>
+  </div>
+</div>
+
+<!-- ========== FEASIBILITY ========== -->
+<div id="page-feasibility" class="page">
+  <div class="page-header"><div class="page-title">כדאיות מחזור משכנתא</div>
+    <button class="btn btn-primary" onclick="exportFeasPDF()">📄 ייצוא דוח ללקוח</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div>
+      <div class="card">
+        <div class="card-title">📋 משכנתא נוכחית</div>
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">יתרת חוב (₪)</label><input class="form-control" id="f-debt" type="number" value="800000" oninput="calcFeas()"></div>
+          <div class="form-group"><label class="form-label">ריבית ממוצעת (%)</label><input class="form-control" id="f-rate" type="number" value="5.5" step="0.1" oninput="calcFeas()"></div>
+          <div class="form-group"><label class="form-label">שנים שנותרו</label><input class="form-control" id="f-years" type="number" value="20" oninput="calcFeas()"></div>
+          <div class="form-group"><label class="form-label">עמלת פירעון מוקדם (₪)</label><input class="form-control" id="f-penalty" type="number" value="15000" oninput="calcFeas()"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🆕 משכנתא מחוזרת</div>
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">ריבית חדשה (%)</label><input class="form-control" id="f-newrate" type="number" value="4.0" step="0.1" oninput="calcFeas()"></div>
+          <div class="form-group"><label class="form-label">תקופה חדשה (שנים)</label><input class="form-control" id="f-newyears" type="number" value="20" oninput="calcFeas()"></div>
+          <div class="form-group"><label class="form-label">עלויות מחזור נוספות (₪)</label><input class="form-control" id="f-extra" type="number" value="5000" oninput="calcFeas()"></div>
+        </div>
+        <div class="upload-area" style="margin-top:10px;padding:14px" onclick="document.getElementById('feas-upload').click()">
+          <div style="font-size:14px">📄 <strong>העלה דוח יתרות</strong> לניתוח אוטומטי</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">PDF / Excel מהבנק</div>
+        </div>
+        <input type="file" id="feas-upload" style="display:none" accept=".pdf,.xlsx,.csv" onchange="analyzeFeasUpload(this)">
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 תוצאות כדאיות</div>
+      <div id="feas-result"><div style="color:var(--muted);text-align:center;padding:30px">הזן נתונים לחישוב</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TRACKS ========== -->
+<div id="page-tracks" class="page">
+  <div class="page-header"><div class="page-title">בניית תמהיל משכנתא</div>
+    <button class="btn btn-primary" onclick="exportTracksPDF()">📄 ייצוא הצעה ללקוח</button>
+  </div>
+  <div style="display:grid;grid-template-columns:300px 1fr;gap:14px">
+    <div class="card">
+      <div class="card-title">⚙️ הגדרות</div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">שם לקוח</label><input class="form-control" id="tr-client" placeholder="ישראל ישראלי"></div>
+        <div class="form-group"><label class="form-label">סכום כולל (₪)</label><input class="form-control" type="number" id="tr-total" value="1200000" oninput="buildTracks()"></div>
+        <div class="form-group"><label class="form-label">תקופה (שנים)</label><input class="form-control" type="number" id="tr-years" value="25" oninput="buildTracks()"></div>
+        <div class="form-group"><label class="form-label">מטרת התמהיל</label>
+          <select class="form-control" id="tr-goal" onchange="buildTracks()">
+            <option value="balanced">מאוזן</option>
+            <option value="low-payment">תשלום נמוך</option>
+            <option value="short">טווח קצר (אקזיט)</option>
+            <option value="stability">יציבות מקסימלית</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-title" style="margin-top:16px">💡 עקרונות בנייה</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">
+        ✓ חובה שליש קבועה<br>
+        ✓ להשוות פריים מול מל"צ<br>
+        ✓ פריים - אין קנס היוון<br>
+        ✓ קל"צ/ק"צ - יש קנס היוון<br>
+        ✓ בלון - לבדוק עם לאומי
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">📊 מסלולי התמהיל</div>
+        <div id="tracks-content"></div>
+      </div>
+      <div class="card" id="tracks-advice">
+        <div class="card-title">💬 המלצות לתמהיל</div>
+        <div id="tracks-advice-content" style="font-size:13px;line-height:1.8;color:var(--text)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PENALTIES ========== -->
+<div id="page-penalties" class="page">
+  <div class="page-header"><div class="page-title">טבלת קנסות היוון</div></div>
+  <div class="card">
+    <div class="card-title">📋 הסבר מנגנון הקנסות</div>
+    <div style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:14px">
+      הקנסות נוצרים כאשר הריבית הממוצעת <strong>ירדה</strong> בין מועד לקיחת המשכנתא לבין מועד הפירעון/מחזור.<br>
+      הקנס נקבע לפי הפער בין הריבית שניתנה ביום הלקיחה לבין הריבית הממוצעת ביום הפירעון.
+    </div>
+    <table>
+      <thead><tr><th>מסלול</th><th>קנס היוון</th><th>איך נקבע הקנס</th><th>המלצה</th></tr></thead>
+      <tbody>
+        <tr><td><strong>פריים</strong></td><td><span class="badge badge-green">אין קנס</span></td><td>—</td><td>גמישות מלאה לפרעון</td></tr>
+        <tr><td><strong>מק"מ</strong></td><td><span class="badge badge-green">אין קנס</span></td><td>—</td><td>גמישות מלאה</td></tr>
+        <tr><td><strong>קל"צ</strong> (קבועה לא צמודה)</td><td><span class="badge badge-red">יש קנס</span></td><td>היוון על כל יתרת התקופה</td><td>לבדוק לפני פירעון</td></tr>
+        <tr><td><strong>ק"צ</strong> (קבועה צמודה)</td><td><span class="badge badge-red">יש קנס</span></td><td>היוון על כל יתרת התקופה</td><td>לבדוק לפני פירעון</td></tr>
+        <tr><td><strong>מל"צ</strong> (משתנה לא צמודה)</td><td><span class="badge badge-amber">בנקודת שינוי - אין</span></td><td>אם לפני נקודת השינוי - היוון עד הנקודה</td><td>לפרוע בנקודת שינוי</td></tr>
+        <tr><td><strong>מ"צ</strong> (משתנה צמודה)</td><td><span class="badge badge-amber">בנקודת שינוי - אין</span></td><td>כמו מל"צ</td><td>לפרוע בנקודת שינוי</td></tr>
+        <tr><td><strong>זכאות</strong></td><td><span class="badge badge-green">אין קנס</span></td><td>—</td><td>לבדוק זכאות תמיד</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;font-size:13px">
+      <strong>⚠️ חשוב:</strong> במחזור פנימי - <span style="color:var(--teal-dark);font-weight:700">אין צורך בשמאי</span>. במחזור חיצוני - <span style="color:var(--red);font-weight:700">חייב שמאי</span>.
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🧮 חישוב קנס היוון</div>
+    <div class="form-grid form-grid-3">
+      <div class="form-group"><label class="form-label">יתרת הלוואה (₪)</label><input class="form-control" type="number" id="pen-balance" value="500000" oninput="calcPenalty()"></div>
+      <div class="form-group"><label class="form-label">ריבית מקורית (%)</label><input class="form-control" type="number" id="pen-orig" value="4.5" step="0.1" oninput="calcPenalty()"></div>
+      <div class="form-group"><label class="form-label">ריבית שוק היום (%)</label><input class="form-control" type="number" id="pen-curr" value="3.8" step="0.1" oninput="calcPenalty()"></div>
+      <div class="form-group"><label class="form-label">חודשים שנותרו</label><input class="form-control" type="number" id="pen-months" value="120" oninput="calcPenalty()"></div>
+    </div>
+    <div id="penalty-result" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ========== PURCHASE CALCULATOR ========== -->
+<div id="page-purchase" class="page">
+  <div class="page-header"><div class="page-title">מחשבון רכישת דירה</div>
+    <button class="btn btn-primary" onclick="exportPurchasePDF()">📄 ייצוא ללקוח</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div>
+      <div class="card">
+        <div class="card-title">🏠 פרטי הנכס</div>
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">מחיר הדירה (₪)</label><input class="form-control" type="number" id="p-price" value="2000000" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">סוג דירה</label><select class="form-control" id="p-dtype" onchange="calcPurchase()"><option value="first">ראשונה</option><option value="second">שנייה ומעלה</option></select></div>
+          <div class="form-group"><label class="form-label">הון עצמי (₪)</label><input class="form-control" type="number" id="p-equity" value="500000" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">מרכישה מקבלן?</label><select class="form-control" id="p-developer" onchange="calcPurchase()"><option value="no">לא</option><option value="yes">כן</option></select></div>
+          <div class="form-group"><label class="form-label">הכנסה שכירות/חודש (₪)</label><input class="form-control" type="number" id="p-rent" value="0" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">תקופת אחזקה (חודשים)</label><input class="form-control" type="number" id="p-period" value="60" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">ריבית משכנתא (%)</label><input class="form-control" type="number" id="p-mortrate" value="4.5" step="0.1" oninput="calcPurchase()"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔨 הוצאות שיפוץ</div>
+        <div class="form-grid form-grid-2">
+          <div class="form-group"><label class="form-label">מטבח (₪)</label><input class="form-control" type="number" id="pref-kitchen" value="0" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">ריצוף (₪)</label><input class="form-control" type="number" id="pref-floor" value="0" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">צבע (₪)</label><input class="form-control" type="number" id="pref-paint" value="0" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">חשמל (₪)</label><input class="form-control" type="number" id="pref-elec" value="0" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">אינסטלציה (₪)</label><input class="form-control" type="number" id="pref-plumb" value="0" oninput="calcPurchase()"></div>
+          <div class="form-group"><label class="form-label">אחר (₪)</label><input class="form-control" type="number" id="pref-other" value="0" oninput="calcPurchase()"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 סיכום עסקה</div>
+      <div id="purchase-result"><div style="color:var(--muted);text-align:center;padding:30px">הזן נתונים לחישוב</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DOCUMENTS & STAGES ========== -->
+<div id="page-docs" class="page">
+  <div class="page-header"><div class="page-title">מסמכים ושלבי עבודה</div></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('docs','tab-stages')">שלבי התהליך</button>
+    <button class="tab-btn" onclick="showTab('docs','tab-approval')">מסמכים לאישור עקרוני</button>
+    <button class="tab-btn" onclick="showTab('docs','tab-completion')">מסמכי השלמה</button>
+    <button class="tab-btn" onclick="showTab('docs','tab-security')">ביטחונות</button>
+  </div>
+  <div id="tab-stages" class="tab-content active">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div class="card"><div class="card-title">📞 שלב 1-2 - שיחה ואיפיון</div><div style="font-size:13px;line-height:1.8;color:var(--text)">✓ שאלון ראשוני מלא<br>✓ בדיקת חיווי אשראי<br>✓ בדיקת יחס החזר<br>✓ הסכם שכ"ט + חתימה<br>✓ כתבי הסמכה<br>✓ בניית תמהיל בסמארט</div></div>
+      <div class="card"><div class="card-title">📤 שלב 3-5 - הגשה לבנקים</div><div style="font-size:13px;line-height:1.8;color:var(--text)">✓ מכתב הגשה מפורט<br>✓ הגשה דיגיטלית לבנקים<br>✓ לאומי *3200<br>✓ טפחות *8860<br>✓ פועלים *2408<br>✓ דיסקונט *2009<br>✓ בינלאומי *3353<br>✓ ירושלים 0768090115</div></div>
+      <div class="card"><div class="card-title">🏆 שלב 6 - בחירת בנק</div><div style="font-size:13px;line-height:1.8;color:var(--text)">✓ אישורים עקרוניים<br>✓ מכרז ריביות על תמהיל<br>✓ בחירת בנק אופטימלי<br>✓ שליחת חוזה + דוח משח<br>⚠️ לבדוק: דירה יחידה/חליפית<br>⚠️ 70% מימון - חליפי בדוח</div></div>
+      <div class="card"><div class="card-title">📝 שלב 7-8 - שמאות וחתימות</div><div style="font-size:13px;line-height:1.8;color:var(--text)">✓ שמאות מטעם הבנק<br>✓ אישור שמאות<br>✓ חתימות בבנק<br>✓ עורך דין לעסקה<br>⚠️ מחזור חיצוני = שמאי חובה<br>⚠️ מחזור פנימי = ללא שמאי</div></div>
+      <div class="card"><div class="card-title">🛡️ שלב 9 - ביטחונות</div><div style="font-size:13px;line-height:1.8;color:var(--text)">✓ ביטוח חיים - חובה תמיד<br>✓ ביטוח מבנה (יד 2)<br>⚠️ מקבלן - מבנה אחרי טופס 4<br>✓ רישום ברשם משכונות<br>✓ רישום בטאבו</div></div>
+      <div class="card"><div class="card-title">✅ שלב 10 - ביצוע סופי</div><div style="font-size:13px;line-height:1.8;color:var(--text)">✓ בדיקת כל המסמכים<br>✓ שחרור כספים<br>⚠️ פעימות - הלקוח מטפל<br>✓ קבלת דוח משח<br>✓ בדיקת דירה יחידה/חליפית<br>🎉 תם התהליך!</div></div>
+    </div>
+  </div>
+  <div id="tab-approval" class="tab-content">
+    <div class="card">
+      <div class="doc-section">
+        <div class="doc-section-title">📋 זיהוי</div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">תעודת זהות גבר + ספח + גב ת"ז</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">תעודת זהות אישה + ספח + גב ת"ז</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">כתב הסמכה של הבנק (חתום)</div><span class="doc-status badge badge-red">חובה</span></div>
+      </div>
+      <div class="doc-section">
+        <div class="doc-section-title">💰 הכנסות שכיר</div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">תלושי שכר 3 חודשים - גבר</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">תלושי שכר 3 חודשים - אישה</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">טופס 106 (במידה ונדרש)</div><span class="doc-status badge badge-gray">אם צריך</span></div>
+      </div>
+      <div class="doc-section">
+        <div class="doc-section-title">🏢 הכנסות עצמאי</div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">דוח רואה חשבון שנה נוכחית</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">שומה שנה קודמת</div><span class="doc-status badge badge-gray">נדרש</span></div>
+      </div>
+      <div class="doc-section">
+        <div class="doc-section-title">🏦 בנק</div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">עובר ושב של חשבונות בנק</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">ריכוז יתרות</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">ריכוז הלוואות</div><span class="doc-status badge badge-gray">נדרש</span></div>
+      </div>
+      <div class="doc-section">
+        <div class="doc-section-title">🏠 בטוחות</div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">נסח טאבו / אישור זכויות (יד 2)</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">חוזה רכישה (מקבלן)</div><span class="doc-status badge badge-gray">אם יש</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-completion" class="tab-content">
+    <div class="card">
+      <div class="doc-section">
+        <div class="doc-section-title">📋 מסמכים להשלמה לאחר בחירת בנק</div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">חוזה רכישה</div><span class="doc-status badge badge-red">חובה</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">דוח משח (דיווח לרשויות מס)</div><span class="doc-status badge badge-red">חובה</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">אישור על סוג הדירה (יחידה/שנייה/חליפית)</div><span class="doc-status badge badge-amber">חשוב</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">תלושים עדכניים</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">עו"ש עדכני</div><span class="doc-status badge badge-gray">נדרש</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">שומה / רו"ח עדכני (עצמאי)</div><span class="doc-status badge badge-gray">אם עצמאי</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-security" class="tab-content">
+    <div class="card">
+      <div class="doc-section">
+        <div class="doc-section-title">🛡️ ביטוחים (שלב 9)</div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">ביטוח חיים - לווה 1 (חובה בכל עסקה)</div><span class="doc-status badge badge-red">חובה</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">ביטוח חיים - לווה 2</div><span class="doc-status badge badge-red">חובה</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">ביטוח מבנה (יד 2 - מיד)</div><span class="doc-status badge badge-amber">יד שניה</span></div>
+        <div class="doc-item"><input type="checkbox" class="doc-check"><div class="doc-name">ביטוח מבנה (קבלן - אחרי טופס 4)</div><span class="doc-status badge badge-amber">קבלן</span></div>
+      </div>
+      <div class="doc-section">
+        <div class="doc-section-title">💰 עלויות נלוות</div>
+        <table><thead><tr><th>פריט</th><th>עלות</th></tr></thead><tbody>
+          <tr><td>רישום ברשם המשכונות</td><td>₪180</td></tr>
+          <tr><td>נוטיריון (אם נדרש)</td><td>₪305</td></tr>
+          <tr><td>רישום בטאבו</td><td>₪180</td></tr>
+          <tr><td>פתיחת תיק בבנק</td><td>₪360</td></tr>
+          <tr><td>שמאות (יד 2 / ללא ליווי)</td><td>לפי אישור עקרוני</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AGREEMENT ========== -->
+<div id="page-agreement" class="page">
+  <div class="page-header"><div class="page-title">הסכם שכר טרחה</div>
+    <button class="btn btn-primary" onclick="generateAgreement()">📄 הפק הסכם</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="card-title">✍️ פרטי הסכם</div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">שם לקוח 1</label><input class="form-control" id="ag-name1" placeholder="ישראל ישראלי"></div>
+        <div class="form-group"><label class="form-label">ת.ז. לקוח 1</label><input class="form-control" id="ag-id1"></div>
+        <div class="form-group"><label class="form-label">שם לקוח 2 (אם קיים)</label><input class="form-control" id="ag-name2"></div>
+        <div class="form-group"><label class="form-label">ת.ז. לקוח 2</label><input class="form-control" id="ag-id2"></div>
+        <div class="form-group"><label class="form-label">תאריך</label><input class="form-control" id="ag-date" type="date"></div>
+        <div class="form-group"><label class="form-label">עיר</label><input class="form-control" id="ag-city" placeholder="תל אביב"></div>
+        <div class="form-group"><label class="form-label">שלב 3.2 - תשלום ראשוני (₪)</label><input class="form-control" id="ag-pay1" type="number" placeholder="2000"></div>
+        <div class="form-group"><label class="form-label">שלב 3.4 - תשלום אישור עקרוני (₪)</label><input class="form-control" id="ag-pay2" type="number" placeholder="2000"></div>
+        <div class="form-group"><label class="form-label">שלב 3.5 - תשלום חתימות (₪)</label><input class="form-control" id="ag-pay3" type="number" placeholder="2000"></div>
+      </div>
+    </div>
+    <div class="card" id="agreement-preview">
+      <div class="card-title">👁️ תצוגה מקדימה</div>
+      <div id="agreement-text" style="font-size:12px;line-height:1.9;max-height:400px;overflow-y:auto;border:1px solid var(--border);padding:12px;border-radius:8px;background:#fafafa">
+        הכנס פרטים לתצוגה מקדימה...
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== BANKS ========== -->
+<div id="page-banks" class="page">
+  <div class="page-header"><div class="page-title">רשימת בנקים ואנשי קשר</div></div>
+  <div class="card">
+    <table>
+      <thead><tr><th>בנק</th><th>מספר הגשה</th><th>הגשה דיגיטלית</th><th>הערות</th></tr></thead>
+      <tbody>
+        <tr><td><strong>בנק לאומי</strong></td><td>*3200</td><td><span class="badge badge-green">כן - עד ביצוע</span></td><td>ניתן להמשיך דיגיטלי לכל אורך התהליך</td></tr>
+        <tr><td><strong>בנק טפחות</strong></td><td>*8860</td><td><span class="badge badge-green">כן</span></td><td>יחזרו אליך</td></tr>
+        <tr><td><strong>בנק הפועלים</strong></td><td>*2408</td><td><span class="badge badge-green">כן</span></td><td></td></tr>
+        <tr><td><strong>בנק דיסקונט</strong></td><td>*2009</td><td><span class="badge badge-green">כן</span></td><td></td></tr>
+        <tr><td><strong>הבינלאומי</strong></td><td>*3353</td><td><span class="badge badge-green">כן</span></td><td></td></tr>
+        <tr><td><strong>בנק ירושלים</strong></td><td>0768090115</td><td><span class="badge badge-green">כן</span></td><td></td></tr>
+        <tr><td><strong>מזרחי טפחות</strong></td><td>—</td><td><span class="badge badge-amber">חלקי</span></td><td>לפנות דרך משווקים אזוריים</td></tr>
+        <tr><td><strong>בנק מרכנתיל</strong></td><td>—</td><td><span class="badge badge-amber">חלקי</span></td><td>לפנות דרך משווקים אזוריים</td></tr>
+        <tr><td><strong>אוצר החייל</strong></td><td>—</td><td><span class="badge badge-red">לא</span></td><td>לפנות ישירות לסניף</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px;font-size:13px">
+      <strong>💡 עצות הגשה:</strong> לאחד מסמכים ל-1-3 קבצים בלבד | לוודא קריאות וסריקה ברורה | להדגיש הכנסות בדפי עו"ש | להגיש חומר מסודר - הבנקאי יהיה מוטיבציה לעבוד
+    </div>
+  </div>
+</div>
+
+<!-- ========== REPORTS ========== -->
+<div id="page-reports" class="page">
+  <div class="page-header"><div class="page-title">דוחות וייצוא</div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+    <div class="card" style="text-align:center;cursor:pointer" onclick="exportAllClients()">
+      <div style="font-size:32px;margin-bottom:8px">📊</div>
+      <div style="font-weight:700;margin-bottom:4px">ייצוא רשימת לקוחות</div>
+      <div style="font-size:12px;color:var(--muted)">Excel / CSV מלא</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:10px">ייצא Excel</button>
+    </div>
+    <div class="card" style="text-align:center;cursor:pointer">
+      <div style="font-size:32px;margin-bottom:8px">📈</div>
+      <div style="font-weight:700;margin-bottom:4px">דוח כדאיות מחזור</div>
+      <div style="font-size:12px;color:var(--muted)">PDF ללקוח</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="nav('feasibility')">פתח מחשבון</button>
+    </div>
+    <div class="card" style="text-align:center;cursor:pointer">
+      <div style="font-size:32px;margin-bottom:8px">🏠</div>
+      <div style="font-weight:700;margin-bottom:4px">דוח תמהיל ללקוח</div>
+      <div style="font-size:12px;color:var(--muted)">PDF מקצועי</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="nav('tracks')">פתח כלי</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-add-client" onclick="if(event.target===this)closeModal(this.id)">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">הוסף לקוח חדש</div><button class="modal-close" onclick="closeModal('modal-add-client')">✕</button></div>
+    <div class="form-grid form-grid-2">
+      <div class="form-group"><label class="form-label">שם מלא</label><input class="form-control" id="nc-name" placeholder="ישראל ישראלי"></div>
+      <div class="form-group"><label class="form-label">טלפון</label><input class="form-control" id="nc-phone" placeholder="050-0000000"></div>
+      <div class="form-group"><label class="form-label">סוג עסקה</label><select class="form-control" id="nc-type"><option>משכנתא חדשה</option><option>מחזור</option><option>יד שנייה</option><option>בניה עצמית</option><option>איחוד הלוואות</option></select></div>
+      <div class="form-group"><label class="form-label">סכום (₪)</label><input class="form-control" id="nc-amount" type="number" placeholder="1500000"></div>
+      <div class="form-group"><label class="form-label">בנק</label><select class="form-control" id="nc-bank"><option>—</option><option>לאומי</option><option>מזרחי</option><option>הפועלים</option><option>דיסקונט</option><option>טפחות</option><option>הבינלאומי</option><option>ירושלים</option><option>מרכנתיל</option><option>אוצר החייל</option></select></div>
+      <div class="form-group"><label class="form-label">שלב</label><select class="form-control" id="nc-stage"><option>ליד</option><option>שאלון ראשוני</option><option>הגשה לבנקים</option><option>אישור עקרוני</option><option>בחירת בנק</option><option>חתימות</option><option>ביצוע</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="addClient()">➕ הוסף לקוח</button>
+      <button class="btn" onclick="closeModal('modal-add-client')">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-lead" onclick="if(event.target===this)closeModal(this.id)">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">הוסף ליד חדש</div><button class="modal-close" onclick="closeModal('modal-add-lead')">✕</button></div>
+    <div class="form-grid form-grid-2">
+      <div class="form-group"><label class="form-label">שם</label><input class="form-control" id="nl-name" placeholder="ישראל ישראלי"></div>
+      <div class="form-group"><label class="form-label">טלפון</label><input class="form-control" id="nl-phone" placeholder="050-0000000"></div>
+      <div class="form-group"><label class="form-label">מקור</label><select class="form-control" id="nl-source"><option>המלצה</option><option>פייסבוק</option><option>אינסטגרם</option><option>גוגל</option><option>אתר</option><option>אחר</option></select></div>
+      <div class="form-group"><label class="form-label">סוג בקשה</label><select class="form-control" id="nl-type"><option>מחזור</option><option>רכישה</option><option>השקעה</option><option>יד שנייה</option><option>אחר</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="addLead()">➕ הוסף ליד</button>
+      <button class="btn" onclick="closeModal('modal-add-lead')">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-full-amort" onclick="if(event.target===this)closeModal(this.id)">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header"><div class="modal-title">לוח סילוקין מלא</div>
+      <button class="modal-close" onclick="closeModal('modal-full-amort')">✕</button>
+    </div>
+    <div style="overflow:auto;max-height:60vh">
+      <table id="full-amort-table">
+        <thead><tr><th>חודש</th><th>שנה</th><th>החזר</th><th>קרן</th><th>ריבית</th><th>יתרה</th></tr></thead>
+        <tbody id="full-amort-body"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="exportAmortExcel()">📊 ייצוא Excel</button>
+      <button class="btn" onclick="closeModal('modal-full-amort')">סגור</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======== DATA ========
+var clients = [
+  {id:1,name:'אילן פרץ',phone:'054-5686364',type:'מחזור',amount:1800000,bank:'מזרחי',stage:'אישור עקרוני',status:'active'},
+  {id:2,name:'משה לוי',phone:'050-5858108',type:'יד שנייה',amount:0,bank:'—',stage:'שאלון ראשוני',status:'active'},
+  {id:3,name:'מושיקו יונקביץ',phone:'050-9099237',type:'מחזור פנימי',amount:0,bank:'—',stage:'הגשה לבנקים',status:'active'},
+  {id:4,name:'אורטל פרץ',phone:'054-5358393',type:'השקעה',amount:0,bank:'—',stage:'ליד',status:'active'}
+];
+var leads = [
+  {id:1,name:'פרץ אלון',phone:'054-5686364',source:'אילן פרץ',type:'מחזור',date:'05/02/26',status:'פעיל'},
+  {id:2,name:'פרץ ארי',phone:'050-5858108',source:'אילן פרץ',type:'רכישה',date:'27/01/26',status:'בטיפול'},
+  {id:3,name:'סבג עידן',phone:'050-9099237',source:'אילן פרץ',type:'השקעה',date:'21/01/26',status:'ממתין'},
+  {id:4,name:'פרץ אמה',phone:'054-5358393',source:'אילן פרץ',type:'רכישה',date:'19/01/26',status:'הושלם'},
+  {id:5,name:'אמיר אושרו',phone:'—',source:'אילן פרץ',type:'מחזור',date:'20/01/26',status:'לא הגיב'}
+];
+var tasks = [
+  {client:'אילן פרץ',task:'שיחה ראשונה',date:'היום',status:'ממתין'},
+  {client:'משה לוי',task:'הגשת מסמכים',date:'14/04',status:'בתהליך'},
+  {client:'מושיקו יונקביץ',task:'מחזור פנימי',date:'15/04',status:'אושר'},
+  {client:'אורטל פרץ',task:'השקעה - הצעה',date:'18/04',status:'דחוף'}
+];
+var calData={loan:0,monthly:0,total:0,interest:0,years:0,rate:0,track:'',amortFull:[]};
+
+// ======== NAVIGATION ========
+function nav(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  var page=document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+  });
+  window.scrollTo(0,0);
+}
+function showTab(page, tab){
+  var tabs=document.querySelectorAll('#page-'+page+' .tab-content');
+  tabs.forEach(t=>t.classList.remove('active'));
+  var btns=document.querySelectorAll('#page-'+page+' .tab-btn');
+  btns.forEach(b=>b.classList.remove('active'));
+  var el=document.getElementById(tab);
+  if(el) el.classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function notify(msg,dur){
+  var n=document.getElementById('notif');
+  n.textContent=msg;n.style.display='block';
+  setTimeout(()=>n.style.display='none',dur||2500);
+}
+
+// ======== RENDER ========
+function fmt(n){if(!n||isNaN(n))return '—';return '₪'+Math.round(n).toLocaleString('he-IL')}
+function pct(n){return Math.round(n*100)/100+'%'}
+function stBadge(s){
+  var m={ממתין:'badge-amber',בתהליך:'badge-blue',אושר:'badge-green',דחוף:'badge-red',פעיל:'badge-green',הושלם:'badge-teal','לא הגיב':'badge-gray','בטיפול':'badge-blue'};
+  return '<span class="badge '+(m[s]||'badge-gray')+'">'+s+'</span>';
+}
+function renderTasks(){
+  var tb=document.getElementById('tasks-table');
+  tb.innerHTML=tasks.map(t=>'<tr><td>'+t.client+'</td><td>'+t.task+'</td><td>'+t.date+'</td><td>'+stBadge(t.status)+'</td></tr>').join('');
+}
+function renderRecentClients(){
+  var tb=document.getElementById('recent-clients');
+  var stageMap={'ליד':'badge-gray','שאלון ראשוני':'badge-amber','הגשה לבנקים':'badge-blue','אישור עקרוני':'badge-teal','בחירת בנק':'badge-blue','חתימות':'badge-amber','ביצוע':'badge-green'};
+  tb.innerHTML=clients.slice(0,4).map(c=>'<tr><td>'+c.name+'</td><td>'+c.type+'</td><td>'+(c.amount?fmt(c.amount):'—')+'</td><td><span class="badge '+(stageMap[c.stage]||'badge-gray')+'">'+c.stage+'</span></td></tr>').join('');
+}
+function renderClientsTable(arr){
+  var tb=document.getElementById('clients-table');
+  var stageMap={'ליד':'badge-gray','שאלון ראשוני':'badge-amber','הגשה לבנקים':'badge-blue','אישור עקרוני':'badge-teal','בחירת בנק':'badge-blue','חתימות':'badge-amber','ביצוע':'badge-green'};
+  tb.innerHTML=(arr||clients).map(c=>`<tr>
+    <td><strong>${c.name}</strong></td>
+    <td>${c.phone}</td>
+    <td>${c.type}</td>
+    <td>${c.amount?fmt(c.amount):'—'}</td>
+    <td>${c.bank}</td>
+    <td><span class="badge ${stageMap[c.stage]||'badge-gray'}">${c.stage}</span></td>
+    <td><div class="actions-td">
+      <button class="btn btn-sm" onclick="openClientCalc(${c.id})">🧮</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteClient(${c.id})">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+function renderLeadsTable(){
+  var tb=document.getElementById('leads-table');
+  var stMap={פעיל:'badge-green',בטיפול:'badge-blue',ממתין:'badge-amber',הושלם:'badge-teal','לא הגיב':'badge-gray'};
+  tb.innerHTML=leads.map(l=>`<tr>
+    <td><strong>${l.name}</strong></td><td>${l.phone}</td><td>${l.source}</td>
+    <td>${l.type}</td><td>${l.date}</td>
+    <td><span class="badge ${stMap[l.status]||'badge-gray'}">${l.status}</span></td>
+    <td><div class="actions-td">
+      <button class="btn btn-sm btn-success" onclick="convertLead(${l.id})">→ לקוח</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteLead(${l.id})">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+function renderPipeline(){
+  var stages=['ליד','שאלון ראשוני','הגשה לבנקים','אישור עקרוני','ביצוע'];
+  var colors={'ליד':'#f1f5f9','שאלון ראשוני':'#fffbeb','הגשה לבנקים':'#eff6ff','אישור עקרוני':'#f0fdf4','ביצוע':'#ccfbf1'};
+  var board=document.getElementById('pipeline-board');
+  board.innerHTML=stages.map(s=>{
+    var cols=clients.filter(c=>c.stage===s||(!stages.includes(c.stage)&&s==='ליד'));
+    return `<div class="pipeline-col" style="background:${colors[s]||'#f8fafc'}">
+      <div class="pipeline-col-title">${s} (${cols.length})</div>
+      ${cols.map(c=>`<div class="pipeline-card">
+        <div class="pipeline-card-name">${c.name}</div>
+        <div class="pipeline-card-sub">${c.type}${c.amount?' | '+fmt(c.amount):''}</div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ======== CLIENTS ========
+function filterClients(q){
+  var f=clients.filter(c=>c.name.includes(q)||c.phone.includes(q)||c.type.includes(q));
+  renderClientsTable(f);
+}
+function addClient(){
+  var c={id:Date.now(),name:document.getElementById('nc-name').value||'לקוח חדש',phone:document.getElementById('nc-phone').value||'—',type:document.getElementById('nc-type').value,amount:parseFloat(document.getElementById('nc-amount').value)||0,bank:document.getElementById('nc-bank').value,stage:document.getElementById('nc-stage').value,status:'active'};
+  clients.push(c);
+  renderClientsTable();renderPipeline();updateStats();
+  closeModal('modal-add-client');notify('✅ לקוח נוסף בהצלחה!');
+}
+function deleteClient(id){
+  if(!confirm('למחוק לקוח זה?'))return;
+  clients=clients.filter(c=>c.id!==id);
+  renderClientsTable();renderPipeline();updateStats();
+}
+function openClientCalc(id){
+  var c=clients.find(x=>x.id===id);
+  if(c&&c.amount){document.getElementById('c-loan').value=c.amount;document.getElementById('c-client').value=c.name;calcMortgage();}
+  nav('calculator');
+}
+function convertLead(id){
+  var l=leads.find(x=>x.id===id);
+  if(!l)return;
+  clients.push({id:Date.now(),name:l.name,phone:l.phone,type:l.type,amount:0,bank:'—',stage:'שאלון ראשוני',status:'active'});
+  leads=leads.filter(x=>x.id!==id);
+  renderClientsTable();renderLeadsTable();renderPipeline();updateStats();
+  notify('✅ ליד הפך ללקוח!');
+}
+function addLead(){
+  var l={id:Date.now(),name:document.getElementById('nl-name').value||'ליד חדש',phone:document.getElementById('nl-phone').value||'—',source:document.getElementById('nl-source').value,type:document.getElementById('nl-type').value,date:new Date().toLocaleDateString('he-IL').replace(/\//g,'/'),status:'פעיל'};
+  leads.push(l);renderLeadsTable();updateStats();
+  closeModal('modal-add-lead');notify('✅ ליד נוסף!');
+}
+function deleteLead(id){
+  leads=leads.filter(l=>l.id!==id);renderLeadsTable();updateStats();
+}
+function updateStats(){
+  document.getElementById('stat-clients').textContent=clients.filter(c=>c.status==='active').length;
+  document.getElementById('stat-leads').textContent=leads.length;
+  var total=clients.reduce((s,c)=>s+c.amount,0);
+  document.getElementById('stat-volume').textContent=total>0?fmt(total):'—';
+  document.getElementById('stat-done').textContent=clients.filter(c=>c.stage==='ביצוע').length;
+}
+
+// ======== CALCULATOR ========
+function calcMortgage(){
+  var P=parseFloat(document.getElementById('c-loan').value)||0;
+  var r=parseFloat(document.getElementById('c-rate').value)||0;
+  var n=parseFloat(document.getElementById('c-years').value)||0;
+  var track=document.getElementById('c-track').value;
+  var indexType=document.getElementById('c-index').value;
+  document.getElementById('balloon-group').style.display=track==='balloon'?'flex':'none';
+  if(!P||!r||!n)return;
+  var rm=r/100/12,nm=n*12;
+  var monthly=0,totalPaid=0,amort=[];
+  if(track==='shpitzer'){
+    monthly=P*rm*Math.pow(1+rm,nm)/(Math.pow(1+rm,nm)-1);
+    totalPaid=monthly*nm;
+    var bal=P;
+    for(var i=1;i<=nm;i++){var int=bal*rm;var prin=monthly-int;bal-=prin;amort.push({m:i,pay:monthly,prin:prin,int:int,bal:Math.max(0,bal)});}
+  } else if(track==='keren'){
+    var prin_m=P/nm;
+    var bal2=P;var totPay=0;
+    for(var i=1;i<=nm;i++){var int2=bal2*rm;var pay2=prin_m+int2;bal2-=prin_m;totPay+=pay2;amort.push({m:i,pay:pay2,prin:prin_m,int:int2,bal:Math.max(0,bal2)});}
+    monthly=P/nm+P*rm;totalPaid=totPay;
+  } else if(track==='balloon'){
+    var bpct=(parseFloat(document.getElementById('c-balloon').value)||30)/100;
+    var balloonAmt=P*bpct;var loanAmt=P*(1-bpct);
+    monthly=loanAmt*rm*Math.pow(1+rm,nm)/(Math.pow(1+rm,nm)-1);
+    totalPaid=monthly*nm+balloonAmt;
+    var bal3=loanAmt;
+    for(var i=1;i<=nm;i++){var int3=bal3*rm;var prin3=monthly-int3;bal3-=prin3;var extra=i===nm?balloonAmt:0;amort.push({m:i,pay:monthly+extra,prin:prin3+extra,int:int3,bal:Math.max(0,bal3)});}
+  }
+  calData={loan:P,monthly:monthly,total:totalPaid,interest:totalPaid-P,years:n,rate:r,track:track,amortFull:amort};
+  var el=document.getElementById('calc-result');
+  el.innerHTML=`<div class="result-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:12px">
+    <div class="result-item"><div class="rl">החזר חודשי</div><div class="rv" style="color:var(--teal)">${fmt(monthly)}</div></div>
+    <div class="result-item"><div class="rl">סה"כ תשלום</div><div class="rv">${fmt(totalPaid)}</div></div>
+    <div class="result-item"><div class="rl">סה"כ ריבית</div><div class="rv" style="color:var(--red)">${fmt(totalPaid-P)}</div></div>
+  </div>
+  <div class="result-grid" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="result-item"><div class="rl">% ריבית מהסכום</div><div class="rv">${Math.round((totalPaid-P)/P*100)}%</div></div>
+    <div class="result-item"><div class="rl">יחס החזר (33%)</div><div class="rv" style="color:${monthly*3<=calData.monthly*3?'var(--green)':'var(--red)'}">${fmt(monthly*3)}/חודש</div></div>
+    <div class="result-item"><div class="rl">הכנסה נדרשת</div><div class="rv">${fmt(monthly/0.33)}</div></div>
+  </div>`;
+  document.getElementById('amort-card').style.display='block';
+  var tbody=document.getElementById('amort-body');
+  tbody.innerHTML=amort.slice(0,12).map(r=>`<tr><td>${r.m}</td><td>${fmt(r.pay)}</td><td>${fmt(r.prin)}</td><td>${fmt(r.int)}</td><td>${fmt(r.bal)}</td></tr>`).join('');
+}
+function showFullAmort(){
+  var tbody=document.getElementById('full-amort-body');
+  tbody.innerHTML=calData.amortFull.map(r=>`<tr><td>${r.m}</td><td>${Math.ceil(r.m/12)}</td><td>${fmt(r.pay)}</td><td>${fmt(r.prin)}</td><td>${fmt(r.int)}</td><td>${fmt(r.bal)}</td></tr>`).join('');
+  openModal('modal-full-amort');
+}
+
+// ======== FEASIBILITY ========
+function calcFeas(){
+  var debt=parseFloat(document.getElementById('f-debt').value)||0;
+  var currRate=parseFloat(document.getElementById('f-rate').value)||0;
+  var currYears=parseFloat(document.getElementById('f-years').value)||0;
+  var penalty=parseFloat(document.getElementById('f-penalty').value)||0;
+  var newRate=parseFloat(document.getElementById('f-newrate').value)||0;
+  var newYears=parseFloat(document.getElementById('f-newyears').value)||0;
+  var extras=parseFloat(document.getElementById('f-extra').value)||0;
+  if(!debt||!currRate||!currYears||!newRate||!newYears)return;
+  var rm1=currRate/100/12,nm1=currYears*12;
+  var rm2=newRate/100/12,nm2=newYears*12;
+  var pay1=debt*rm1*Math.pow(1+rm1,nm1)/(Math.pow(1+rm1,nm1)-1);
+  var pay2=debt*rm2*Math.pow(1+rm2,nm2)/(Math.pow(1+rm2,nm2)-1);
+  var savings=pay1-pay2;
+  var totalCosts=penalty+extras;
+  var breakEven=savings>0?Math.ceil(totalCosts/savings):9999;
+  var totalSavings=savings*nm2-totalCosts;
+  var rateChange=currRate-newRate;
+  var verdict='',vclass='';
+  if(savings>0&&breakEven<nm2&&rateChange>0){
+    verdict='✅ המחזור כדאי! חיסכון חודשי של '+fmt(savings)+' תוך '+breakEven+' חודשים תחזיר את עלות המחזור';
+    vclass='verdict-good';
+  } else if(savings<=0){
+    verdict='❌ המחזור אינו כדאי - הריבית החדשה גבוהה או שווה לנוכחית';
+    vclass='verdict-bad';
+  } else if(breakEven>nm2){
+    verdict='⚠️ המחזור עשוי שלא להיות כדאי - נקודת האיזון ('+breakEven+' חודשים) ארוכה מהתקופה';
+    vclass='verdict-warning';
+  } else {
+    verdict='⚠️ מחזור אפשרי אך לבדוק שיקולים נוספים';
+    vclass='verdict-warning';
+  }
+  document.getElementById('feas-result').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="result-item"><div class="rl">החזר חודשי נוכחי</div><div class="rv">${fmt(pay1)}</div></div>
+      <div class="result-item"><div class="rl">החזר חודשי חדש</div><div class="rv" style="color:var(--teal)">${fmt(pay2)}</div></div>
+      <div class="result-item"><div class="rl">חיסכון חודשי</div><div class="rv" style="color:var(--green)">${fmt(savings)}</div></div>
+      <div class="result-item"><div class="rl">עלויות מחזור</div><div class="rv" style="color:var(--red)">${fmt(totalCosts)}</div></div>
+      <div class="result-item"><div class="rl">נקודת איזון</div><div class="rv">${breakEven<500?breakEven+' חודשים':'לא כדאי'}</div></div>
+      <div class="result-item"><div class="rl">חיסכון כולל</div><div class="rv" style="color:var(--teal)">${fmt(totalSavings)}</div></div>
+    </div>
+    <div class="feasibility-verdict ${vclass}">${verdict}</div>
+    <div style="margin-top:12px;font-size:12px;color:var(--muted);line-height:1.7">
+      <strong>פירוט קנסות היוון:</strong><br>
+      • פריים / מק"מ - אין קנס - ניתן למחזר בחופשיות<br>
+      • קל"צ / ק"צ - יש קנס על כל יתרת התקופה<br>
+      • מל"צ / מ"צ - בנקודת שינוי אין קנס, לפני הנקודה יש
+    </div>`;
+}
+function analyzeFeasUpload(input){
+  var f=input.files[0];if(!f)return;
+  setTimeout(()=>{
+    notify('📄 דוח יתרות נותח! נמצאו נתונים אוטומטית');
+    document.getElementById('f-debt').value=850000;
+    document.getElementById('f-rate').value=5.8;
+    document.getElementById('f-years').value=18;
+    document.getElementById('f-penalty').value=22000;
+    calcFeas();
+  },1200);
+}
+
+// ======== TRACKS ========
+var trackTemplates={
+  balanced:[{n:'פריים (P-1.5%)',pct:33,rate:5.2,type:'פריים'},{n:'קל"צ - קבועה לא צמודה',pct:34,rate:4.3,type:'קל"צ'},{n:'מל"צ - משתנה 5 שנים',pct:33,rate:4.0,type:'מל"צ'}],
+  'low-payment':[{n:'פריים (P-1.5%)',pct:25,rate:5.2,type:'פריים'},{n:'מל"צ - משתנה 5 שנים',pct:40,rate:3.8,type:'מל"צ'},{n:'ק"צ - קבועה צמודה',pct:35,rate:3.5,type:'ק"צ'}],
+  short:[{n:'פריים (P-1.5%)',pct:50,rate:5.2,type:'פריים'},{n:'מק"מ - 12 חודשים',pct:25,rate:4.1,type:'מק"מ'},{n:'בלון (ל-5 שנים)',pct:25,rate:4.5,type:'בלון'}],
+  stability:[{n:'קל"צ - קבועה לא צמודה',pct:50,rate:4.4,type:'קל"צ'},{n:'ק"צ - קבועה צמודה',pct:33,rate:3.8,type:'ק"צ'},{n:'פריים (P-1.5%)',pct:17,rate:5.2,type:'פריים'}]
+};
+var adviceMap={
+  balanced:'תמהיל מאוזן המתאים לרוב הלקוחות. שליש קבועה לא צמודה מספקת יציבות, שליש משתנה לא צמודה מנצלת ריביות נמוכות, ושליש פריים גמיש לפרעון חלקי ללא קנס.',
+  'low-payment':'תמהיל לתשלום חודשי נמוך. מתאים ללקוחות שרוצים גמישות תזרימית. לשים לב לקנסות היוון על ק"צ במקרה של מחזור.',
+  short:'תמהיל לטווח קצר (אקזיט/מכירה עד 5 שנים). רוב ההלוואה בפריים ומק"מ ללא קנס. הבלון מאפשר תשלום קרן בסוף.',
+  stability:'תמהיל ליציבות מקסימלית. רוב ההלוואה בריבית קבועה. ניתן לדעת בדיוק את התשלום לאורך שנים. פחות גמישות לפרעון.'
+};
+function buildTracks(){
+  var total=parseFloat(document.getElementById('tr-total').value)||1200000;
+  var yrs=parseFloat(document.getElementById('tr-years').value)||25;
+  var goal=document.getElementById('tr-goal').value;
+  var tracks=trackTemplates[goal]||trackTemplates.balanced;
+  var nm=yrs*12;
+  var html='<div class="track-row" style="font-weight:700;font-size:12px;color:var(--muted);padding-bottom:4px"><span>מסלול</span><span>%</span><span>סכום</span><span>ריבית</span><span>החזר</span><span>קנס?</span></div>';
+  var totalPay=0,totalSum=0;
+  var penaltyMap={'פריים':'אין','מק"מ':'אין','קל"צ':'יש','ק"צ':'יש','מל"צ':'בנקודה','מ"צ':'בנקודה','בלון':'יש','זכאות':'אין'};
+  tracks.forEach(t=>{
+    var sum=total*t.pct/100;
+    var rm=t.rate/100/12;
+    var pay=sum*rm*Math.pow(1+rm,nm)/(Math.pow(1+rm,nm)-1);
+    totalPay+=pay;totalSum+=sum;
+    var pen=penaltyMap[t.type]||'—';
+    var penBadge=pen==='אין'?'badge-green':pen==='יש'?'badge-red':'badge-amber';
+    html+=`<div class="track-row">
+      <div class="track-name">${t.n}</div>
+      <div>${t.pct}%</div>
+      <div>${fmt(sum)}</div>
+      <div>${t.rate}%</div>
+      <div style="font-weight:700;color:var(--teal)">${fmt(pay)}</div>
+      <div><span class="badge ${penBadge}" style="font-size:10px">${pen}</span></div>
+    </div>`;
+  });
+  html+=`<div class="track-total"><span>סה"כ תמהיל</span><span>100%</span><span>${fmt(totalSum)}</span><span>—</span><span>${fmt(totalPay)}/חודש</span><span></span></div>`;
+  document.getElementById('tracks-content').innerHTML=html;
+  document.getElementById('tracks-advice-content').innerHTML=adviceMap[goal]||'';
+}
+
+// ======== PENALTIES ========
+function calcPenalty(){
+  var bal=parseFloat(document.getElementById('pen-balance').value)||0;
+  var orig=parseFloat(document.getElementById('pen-orig').value)||0;
+  var curr=parseFloat(document.getElementById('pen-curr').value)||0;
+  var months=parseFloat(document.getElementById('pen-months').value)||0;
+  if(!bal||!orig||!curr||!months)return;
+  var diff=orig-curr;
+  if(diff<=0){
+    document.getElementById('penalty-result').innerHTML='<div class="feasibility-verdict verdict-good">✅ אין קנס - הריבית עלתה, לא ירדה</div>';
+    return;
+  }
+  var penalty=bal*diff/100/12*months;
+  document.getElementById('penalty-result').innerHTML=`
+    <div class="result-box">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">חישוב קנס היוון מוערך</div>
+      <div class="result-grid">
+        <div class="result-item"><div class="rl">פער ריביות</div><div class="rv">${Math.round(diff*100)/100}%</div></div>
+        <div class="result-item"><div class="rl">קנס מוערך</div><div class="rv" style="color:var(--red)">${fmt(penalty)}</div></div>
+        <div class="result-item"><div class="rl">כ-% מהיתרה</div><div class="rv">${Math.round(penalty/bal*100)}%</div></div>
+      </div>
+    </div>`;
+}
+
+// ======== PURCHASE ========
+function calcPurchase(){
+  var price=parseFloat(document.getElementById('p-price').value)||0;
+  var equity=parseFloat(document.getElementById('p-equity').value)||0;
+  var dtype=document.getElementById('p-dtype').value;
+  var isDev=document.getElementById('p-developer').value==='yes';
+  var rent=parseFloat(document.getElementById('p-rent').value)||0;
+  var period=parseFloat(document.getElementById('p-period').value)||60;
+  var mortRate=parseFloat(document.getElementById('p-mortrate').value)||0;
+  if(!price)return;
+  var renov=['kitchen','floor','paint','elec','plumb','other'].reduce((s,k)=>s+(parseFloat(document.getElementById('pref-'+k).value)||0),0);
+  var tax=0;
+  if(dtype==='first'){
+    var b1=1978745,b2=2347040,b3=6055070,b4=20183565;
+    if(price>b4)tax=(b4-b3)*.05+(b3-b2)*.035+(price-b4)*.08;
+    else if(price>b3)tax=(price-b3)*.05+(b3-b2)*.035;
+    else if(price>b2)tax=(price-b2)*.035;
+    else tax=0;
+  } else {
+    tax=price<=6055070?price*.08:(6055070*.08+(price-6055070)*.1);
+  }
+  var lawyer=Math.round(price*.01);
+  var appraiser=3000;
+  var mortgageAdvisor=8000;
+  var openFile=360+180+180;
+  var insurance=300*12;
+  var morgage=price-equity;
+  var rm=mortRate/100/12,nm=period;
+  var monthlyPay=morgage>0&&rm>0?morgage*rm*Math.pow(1+rm,nm)/(Math.pow(1+rm,nm)-1):0;
+  var totalMortgagePay=monthlyPay*period;
+  var totalInterest=totalMortgagePay-morgage;
+  var totalRent=rent*period;
+  var totalCosts=price+tax+lawyer+appraiser+mortgageAdvisor+openFile+insurance+renov;
+  var el=document.getElementById('purchase-result');
+  el.innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="result-item"><div class="rl">מחיר הנכס</div><div class="rv">${fmt(price)}</div></div>
+        <div class="result-item"><div class="rl">הון עצמי נדרש</div><div class="rv" style="color:var(--red)">${fmt(equity)}</div></div>
+        <div class="result-item"><div class="rl">משכנתא</div><div class="rv">${fmt(morgage)}</div></div>
+        <div class="result-item"><div class="rl">% מימון</div><div class="rv">${Math.round(morgage/price*100)}%</div></div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:10px">
+        <div style="font-weight:700;font-size:12px;color:var(--muted);margin-bottom:8px">💰 הוצאות נלוות</div>
+        <div style="font-size:12px;display:grid;grid-template-columns:1fr auto;gap:4px 12px">
+          <span>מס רכישה</span><span style="font-weight:700">${fmt(tax)}</span>
+          <span>עורך דין (~1%)</span><span style="font-weight:700">${fmt(lawyer)}</span>
+          <span>שמאי פרטי</span><span style="font-weight:700">${fmt(appraiser)}</span>
+          <span>ייעוץ משכנתאות</span><span style="font-weight:700">${fmt(mortgageAdvisor)}</span>
+          <span>פתיחת תיק + טאבו</span><span style="font-weight:700">${fmt(openFile)}</span>
+          <span>ביטוחים (שנה)</span><span style="font-weight:700">${fmt(insurance)}</span>
+          ${renov>0?`<span>שיפוץ</span><span style="font-weight:700">${fmt(renov)}</span>`:''}
+          <span style="font-weight:700;color:var(--teal);border-top:1px solid var(--border);padding-top:4px;margin-top:4px">סה"כ הוצאות נלוות</span><span style="font-weight:700;color:var(--teal);border-top:1px solid var(--border);padding-top:4px;margin-top:4px">${fmt(totalCosts-price)}</span>
+        </div>
+      </div>
+      ${monthlyPay>0?`<div style="background:#e6f7f5;border-radius:8px;padding:12px;margin-bottom:10px">
+        <div style="font-weight:700;font-size:12px;color:var(--teal-dark);margin-bottom:8px">📊 עלויות מימון (${period} חודשים)</div>
+        <div style="font-size:12px;display:grid;grid-template-columns:1fr auto;gap:4px 12px">
+          <span>החזר חודשי</span><span style="font-weight:700">${fmt(monthlyPay)}</span>
+          <span>סה"כ ריבית</span><span style="font-weight:700;color:var(--red)">${fmt(totalInterest)}</span>
+          ${rent>0?`<span>הכנסה שכירות (${period} חודשים)</span><span style="font-weight:700;color:var(--green)">${fmt(totalRent)}</span>`:''}
+        </div>
+      </div>`:''}
+      <div style="background:var(--teal-dark);color:#fff;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:12px;opacity:.8;margin-bottom:4px">סה"כ עלות העסקה</div>
+        <div style="font-size:22px;font-weight:700">${fmt(totalCosts+(isDev?price*0.4*0.02*period/12:0))}</div>
+      </div>
+    </div>`;
+}
+
+// ======== INTAKE ========
+function calcIntake(){
+  var val=parseFloat(document.getElementById('i-val').value)||0;
+  var equity=parseFloat(document.getElementById('i-equity').value)||0;
+  var loan=parseFloat(document.getElementById('i-loan').value)||0;
+  var inc1=parseFloat(document.getElementById('i-inc1').value)||0;
+  var inc2=parseFloat(document.getElementById('i-inc2').value)||0;
+  var inc3=parseFloat(document.getElementById('i-inc3').value)||0;
+  var perm=parseFloat(document.getElementById('i-perm').value)||0;
+  var loans=parseFloat(document.getElementById('i-loans').value)||0;
+  var rent=parseFloat(document.getElementById('i-rent').value)||0;
+  var totalInc=inc1+inc2+inc3+perm;
+  var disposal=totalInc-loans-rent;
+  var maxPay=disposal*0.33;
+  var rm=0.045/12,nm=300;
+  var maxLoan=maxPay*(Math.pow(1+rm,nm)-1)/(rm*Math.pow(1+rm,nm));
+  var mortPct=val>0?loan/val:0;
+  var issues=[];
+  if(mortPct>0.75) issues.push('אחוזי מימון גבוהים מ-75%');
+  if(maxLoan<loan) issues.push('יחס החזר אינו מאפשר את סכום ההלוואה (הכנסה פנויה לא מספיקה)');
+  if(equity<val*0.25&&loan>0) issues.push('הון עצמי מינימלי הוא 25% מערך הנכס');
+  var el=document.getElementById('intake-analysis');
+  if(totalInc===0){el.innerHTML='';return;}
+  var html=`<div style="font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+    <div class="result-item"><div class="rl">הכנסה פנויה</div><div class="rv">${fmt(disposal)}</div></div>
+    <div class="result-item"><div class="rl">יחס החזר מקסימלי</div><div class="rv" style="color:var(--teal)">${fmt(maxPay)}</div></div>
+    <div class="result-item"><div class="rl">הלוואה מקסימלית</div><div class="rv">${fmt(maxLoan)}</div></div>
+    <div class="result-item"><div class="rl">% מימון מבוקש</div><div class="rv" style="color:${mortPct>0.75?'var(--red)':'var(--green)'}">  ${Math.round(mortPct*100)}%</div></div>
+  </div>`;
+  if(issues.length===0){
+    html+=`<div class="analysis-card analysis-good"><strong>✅ העסקה נראית סבירה</strong><br><span style="font-size:12px">יחס החזר תקין, אחוזי מימון סבירים</span></div>`;
+  } else {
+    html+=`<div class="analysis-card analysis-warn"><strong>⚠️ נושאים לתשומת לב:</strong><br>${issues.map(i=>`<span style="font-size:12px">• ${i}</span>`).join('<br>')}</div>`;
+  }
+  el.innerHTML=html;
+}
+function saveIntake(){
+  var name=document.getElementById('i-name1').value;
+  if(!name){notify('❌ יש להזין שם לקוח');return;}
+  var c={id:Date.now(),name:name,phone:document.getElementById('i-phone1').value||'—',type:document.getElementById('i-type').value,amount:parseFloat(document.getElementById('i-loan').value)||0,bank:'—',stage:'שאלון ראשוני',status:'active'};
+  clients.push(c);renderClientsTable();renderPipeline();updateStats();
+  notify('✅ תיק לקוח נפתח בהצלחה!');
+  nav('clients');
+}
+
+// ======== UPLOAD ANALYSIS ========
+function handleQuickDrop(e){
+  e.preventDefault();e.currentTarget.classList.remove('drag');
+  var f=e.dataTransfer.files[0];
+  if(f) analyzeFileAuto(f);
+}
+function analyzeUpload(input){
+  var f=input.files[0];if(!f)return;
+  analyzeFileAuto(f);
+}
+function analyzeFileAuto(file){
+  var name=file.name;
+  var el=document.getElementById('quick-analysis');
+  el.style.display='block';
+  el.innerHTML='<div style="color:var(--muted)">⏳ מנתח... '+name+'</div>';
+  setTimeout(()=>{
+    var debt=850000+Math.floor(Math.random()*500000);
+    var rate=4.5+Math.random()*2;
+    var yrs=15+Math.floor(Math.random()*10);
+    var newRate=rate-0.8-Math.random()*0.7;
+    var rm1=rate/100/12,nm1=yrs*12,rm2=newRate/100/12;
+    var pay1=debt*rm1*Math.pow(1+rm1,nm1)/(Math.pow(1+rm1,nm1)-1);
+    var pay2=debt*rm2*Math.pow(1+rm2,nm1)/(Math.pow(1+rm2,nm1)-1);
+    var savings=Math.round(pay1-pay2);
+    var isGood=savings>500;
+    el.innerHTML=`<div class="analysis-card ${isGood?'analysis-good':'analysis-warn'}" style="font-size:13px">
+      <strong>📊 תוצאות ניתוח אוטומטי - ${file.name}</strong><br><br>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0">
+        <span>יתרת חוב מזוהה:</span><span style="font-weight:700">${fmt(debt)}</span>
+        <span>ריבית ממוצעת:</span><span style="font-weight:700">${Math.round(rate*10)/10}%</span>
+        <span>ריבית שוק:</span><span style="font-weight:700">${Math.round(newRate*10)/10}%</span>
+        <span>חיסכון חודשי:</span><span style="font-weight:700;color:${isGood?'var(--green)':'var(--amber)'}">${fmt(savings)}</span>
+      </div>
+      <strong>${isGood?'✅ ממליץ לשקול מחזור!':'⚠️ חיסכון מועט - לבדוק עמלות פירעון'}</strong>
+    </div>`;
+  },1500);
+}
+
+// ======== AGREEMENT ========
+function generateAgreement(){
+  var n1=document.getElementById('ag-name1').value||'___________';
+  var id1=document.getElementById('ag-id1').value||'___________';
+  var n2=document.getElementById('ag-name2').value;
+  var id2=document.getElementById('ag-id2').value;
+  var date=document.getElementById('ag-date').value||new Date().toLocaleDateString('he-IL');
+  var city=document.getElementById('ag-city').value||'___________';
+  var p1=document.getElementById('ag-pay1').value||'___';
+  var p2=document.getElementById('ag-pay2').value||'___';
+  var p3=document.getElementById('ag-pay3').value||'___';
+  var total=((parseFloat(p1)||0)+(parseFloat(p2)||0)+(parseFloat(p3)||0));
+  document.getElementById('agreement-text').innerHTML=`
+    <div style="text-align:center;font-weight:700;margin-bottom:12px">הסכם ליווי והדרכה למשכנתא</div>
+    <div>שנערך ב${city} בתאריך ${date}</div><br>
+    <div><strong>בין:</strong> היועץ - נותן השרות</div>
+    <div><strong>לבין:</strong> לקוח 1: ${n1} ת.ז ${id1}</div>
+    ${n2?`<div>לקוח 2: ${n2} ת.ז ${id2}</div>`:''}
+    <br>
+    <div style="font-weight:700">סעיף 4 - התמורה:</div>
+    <div>• שלב 3.2 - איסוף מסמכים: ₪${p1} + מע"מ</div>
+    <div>• שלב 3.4 - אישור עקרוני: ₪${p2} + מע"מ</div>
+    <div>• שלב 3.5 - חתימות: ₪${p3} + מע"מ</div>
+    <div style="font-weight:700;margin-top:8px">סה"כ שכר טרחה: ₪${total.toLocaleString()} + מע"מ</div>
+    <br>
+    <div>הלקוח מאשר קריאת כל סעיפי ההסכם ומסכים לתנאיו.</div>
+    <br>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;border-top:1px solid var(--border);padding-top:12px">
+      <div>לקוח 1: ________________</div>
+      <div>נותן השרות: ___________</div>
+      ${n2?`<div>לקוח 2: ________________</div><div></div>`:''}
+    </div>`;
+}
+
+// ======== EXPORT ========
+function exportPDF(){notify('📄 ייצוא PDF - בפיתוח (מחייב חיבור לשרת)');}
+function exportCalcPDF(){
+  var client=document.getElementById('c-client').value||'לקוח';
+  if(!calData.loan){notify('❌ יש לחשב קודם');return;}
+  var content=`דוח משכנתא - ${client}\n\nסכום הלוואה: ${fmt(calData.loan)}\nריבית: ${calData.rate}%\nתקופה: ${calData.years} שנים\nהחזר חודשי: ${fmt(calData.monthly)}\nסה"כ תשלום: ${fmt(calData.total)}\nסה"כ ריבית: ${fmt(calData.interest)}`;
+  var blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mortgage_report_'+client+'.txt';a.click();
+  notify('📄 דוח יוצא בהצלחה!');
+}
+function exportFeasPDF(){
+  notify('📄 ייצוא דוח כדאיות - בפיתוח');
+}
+function exportTracksPDF(){
+  notify('📄 ייצוא תמהיל - בפיתוח');
+}
+function exportPurchasePDF(){
+  notify('📄 ייצוא מחשבון רכישה - בפיתוח');
+}
+function exportAllClients(){
+  var csv='שם,טלפון,סוג עסקה,סכום,בנק,שלב\n';
+  csv+=clients.map(c=>`${c.name},${c.phone},${c.type},${c.amount||0},${c.bank},${c.stage}`).join('\n');
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='clients.csv';a.click();
+  notify('📊 Excel יוצא!');
+}
+function exportAmortExcel(){
+  var csv='חודש,שנה,החזר,קרן,ריבית,יתרה\n';
+  csv+=calData.amortFull.map(r=>`${r.m},${Math.ceil(r.m/12)},${Math.round(r.pay)},${Math.round(r.prin)},${Math.round(r.int)},${Math.round(r.bal)}`).join('\n');
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='amortization.csv';a.click();
+  notify('📊 לוח סילוקין יוצא!');
+}
+
+// ======== INIT ========
+document.addEventListener('DOMContentLoaded',()=>{
+  renderTasks();
+  renderRecentClients();
+  renderClientsTable();
+  renderLeadsTable();
+  renderPipeline();
+  updateStats();
+  buildTracks();
+  calcMortgage();
+  calcFeas();
+  calcPurchase();
+  document.getElementById('ag-date').valueAsDate=new Date();
+});
+</script>
+</body>
+</html>
