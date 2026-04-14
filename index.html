@@ -259,6 +259,7 @@ textarea.form-control{resize:vertical;min-height:80px}
   <div class="nav-sec">לקוחות</div>
   <button class="nav-item" data-page="clients"><i class="fa fa-users"></i>לקוחות <span class="nav-badge" id="badge-clients">4</span></button>
   <button class="nav-item" data-page="leads"><i class="fa fa-bullseye"></i>לידים <span class="nav-badge" id="badge-leads">5</span></button>
+  <button class="nav-item" data-page="intake"><i class="fa fa-clipboard-list"></i>שאלון ראשוני</button>
   <button class="nav-item" data-page="mortgages"><i class="fa fa-home"></i>משכנתאות</button>
   <button class="nav-item" data-page="tasks"><i class="fa fa-tasks"></i>משימות</button>
   <div class="nav-sec">כלים</div>
@@ -318,6 +319,150 @@ textarea.form-control{resize:vertical;min-height:80px}
     <div id="dash-analysis" style="margin-top:12px"></div>
   </div>
 </div>
+
+<!-- ======== INTAKE — שאלון ראשוני דיגיטלי מלא ======== -->
+<div class="page" id="page-intake">
+  <div class="page-header">
+    <div><div class="page-title-bar">📋 שאלון ראשוני ללקוח</div><div style="font-size:12px;color:var(--muted);margin-top:2px">מבוסס על שאלון השיחה הראשונית המקורי שלך — מלא וחכם</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="resetIntake()"><i class="fa fa-redo"></i> נקה</button>
+      <button class="btn btn-sm" onclick="printIntake()"><i class="fa fa-print"></i> הדפס</button>
+      <button class="btn btn-primary" onclick="submitIntake()"><i class="fa fa-save"></i> פתח תיק לקוח</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <!-- LEFT -->
+    <div>
+      <div class="card">
+        <div class="card-title"><i class="fa fa-user"></i>לווה 1 — פרטים אישיים</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px">
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שם פרטי *</label><input class="form-control" id="i-fn1" placeholder="ישראל"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שם משפחה *</label><input class="form-control" id="i-ln1" placeholder="ישראלי"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">פלאפון *</label><input class="form-control" id="i-ph1" type="tel" placeholder="050-0000000"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">גיל</label><input class="form-control" type="number" id="i-ag1" placeholder="35"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מקום עבודה</label><input class="form-control" id="i-emp1n" placeholder="שם החברה"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">ותק (שנים)</label><input class="form-control" type="number" id="i-vet1" placeholder="5"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">הכנסה חודשית (₪)</label><input class="form-control" type="number" id="i-inc1" placeholder="15000" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שכיר / עצמאי</label><select class="form-control" id="i-empt1"><option>שכיר</option><option>עצמאי</option></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa fa-user"></i>לווה 2 — פרטים אישיים</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px">
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שם פרטי</label><input class="form-control" id="i-fn2" placeholder="שרה"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שם משפחה</label><input class="form-control" id="i-ln2" placeholder="ישראלי"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">פלאפון</label><input class="form-control" id="i-ph2" type="tel" placeholder="050-0000000"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">גיל</label><input class="form-control" type="number" id="i-ag2" placeholder="33"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מקום עבודה</label><input class="form-control" id="i-emp2n" placeholder="שם החברה"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">ותק (שנים)</label><input class="form-control" type="number" id="i-vet2" placeholder="3"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">הכנסה חודשית (₪)</label><input class="form-control" type="number" id="i-inc2" placeholder="12000" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שכירה / עצמאית</label><select class="form-control" id="i-empt2"><option>שכירה</option><option>עצמאית</option></select></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מייל</label><input class="form-control" type="email" id="i-email" placeholder="israel@gmail.com"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">ילדים מתחת ל-18</label><input class="form-control" type="number" id="i-kids" placeholder="2"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa fa-money-bill"></i>הכנסות נוספות</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px">
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">הכנסות נוספות (₪)</label><input class="form-control" type="number" id="i-inc3" placeholder="0" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">קצבאות לצמיתות (₪)</label><input class="form-control" type="number" id="i-pens" placeholder="0" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">הלוואות קיימות (₪/חודש)</label><input class="form-control" type="number" id="i-loans" placeholder="0" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שכירות (₪/חודש)</label><input class="form-control" type="number" id="i-rent" placeholder="0" oninput="calcIntakeFeas()"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa fa-shield-alt"></i>בדיקת חיווי</div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+          <div class="form-group">
+            <label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800;margin-bottom:6px">האם התנהלות בנקאית תקינה?</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;transition:all .15s"><input type="radio" name="q-chivui" value="ok" style="accent-color:var(--teal)"> ✅ כן, תקינה</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;transition:all .15s"><input type="radio" name="q-chivui" value="warn" style="accent-color:var(--teal)"> ⚠️ ישנן הערות</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;transition:all .15s"><input type="radio" name="q-chivui" value="bad" style="accent-color:var(--teal)"> ❌ חיווי שלילי</label>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">חזרו צ׳קים ב-3 שנים?</label><select class="form-control" id="i-bounced"><option>לא</option><option>כן</option></select></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">היה לקוח מוגבל?</label><select class="form-control" id="i-limited"><option>לא</option><option>בעבר</option><option>בהווה</option></select></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">פשיטת רגל?</label><select class="form-control" id="i-bankrupt"><option>לא</option><option>בעבר</option><option>בהווה</option></select></div>
+          </div>
+        </div>
+        <div class="card-title" style="margin-top:14px"><i class="fa fa-heart"></i>ביטוח חיים</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px">
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">לווה 1 — ביטוח חיים</label><select class="form-control" id="i-ins1"><option>בר ביטוח</option><option>בעיה בריאותית</option><option>לא ידוע</option></select></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">לווה 2 — ביטוח חיים</label><select class="form-control" id="i-ins2"><option>בר ביטוח</option><option>בעיה בריאותית</option><option>לא ידוע</option></select></div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT -->
+    <div>
+      <div class="card">
+        <div class="card-title"><i class="fa fa-home"></i>פרטי עסקה</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px">
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">סוג משכנתא *</label>
+            <select class="form-control" id="i-type">
+              <option>משכנתא חדשה</option><option>מחזור</option><option>יד שנייה</option>
+              <option>בניה עצמית</option><option>מחיר למשתכן</option><option>השקעה</option>
+              <option>איחוד הלוואות</option><option>כל מטרה</option><option>חוץ בנקאי</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">דירה ראשונה / נוספת</label><select class="form-control" id="i-dtype"><option>ראשונה</option><option>נוספת</option><option>חליפית</option></select></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מיקום הנכס</label><input class="form-control" id="i-loc" placeholder="תל אביב, רמת גן..."></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">כתובת הנכס</label><input class="form-control" id="i-paddr" placeholder="רחוב, מספר, עיר"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שווי שמאי (₪)</label><input class="form-control" type="number" id="i-aval" placeholder="2000000" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שווי חוזה (₪)</label><input class="form-control" type="number" id="i-cval" placeholder="1950000"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">הון עצמי (₪) *</label><input class="form-control" type="number" id="i-eq" placeholder="500000" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מקורות הון עצמי</label><input class="form-control" id="i-eqsrc" placeholder="חסכונות, ירושה, מכירה..."></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">סכום מימון מבוקש (₪) *</label><input class="form-control" type="number" id="i-lamt" placeholder="1500000" oninput="calcIntakeFeas()"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">% מימון (אוטומטי)</label><input class="form-control" id="i-pct" placeholder="מחושב אוטומטי" readonly style="background:#f8fbfb"></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">חוזה חתום?</label><select class="form-control" id="i-signed"><option>לא</option><option>כן</option></select></div>
+          <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">זכאות</label><input class="form-control" id="i-zchut" placeholder="כן / לא / לבדוק"></div>
+          <div class="form-group" style="grid-column:span 2"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מענק מקום (מחיר למשתכן)</label><input class="form-control" id="i-grant" placeholder="סכום המענק אם רלוונטי"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa fa-layer-group"></i>שאלון לבניית תמהיל</div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+          <div>
+            <label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800;display:block;margin-bottom:6px">לאיזו מטרה המשכנתא — טווח?</label>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px"><input type="radio" name="q-tl" value="long" style="accent-color:var(--teal)"> ארוך</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px"><input type="radio" name="q-tl" value="short" style="accent-color:var(--teal)"> קצר</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px"><input type="radio" name="q-tl" value="exit" style="accent-color:var(--teal)"> אקזיט</label>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">פרעון חלקי/מלא צפוי?</label><select class="form-control" id="i-prepay"><option>לא</option><option>כן — בשנים הקרובות</option><option>אולי</option></select></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">קרן השתלמות/חסכון (₪)</label><input class="form-control" type="number" id="i-save" placeholder="0"></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">בכמה שנים פרעון?</label><input class="form-control" id="i-prepay-y" placeholder="5-7 שנים"></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">החזר מקסימלי ראשוני (₪)</label><input class="form-control" type="number" id="i-maxp1" placeholder="7000"></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">החזר מקסימלי בשיא (₪)</label><input class="form-control" type="number" id="i-maxp2" placeholder="9000"></div>
+          </div>
+          <div>
+            <label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800;display:block;margin-bottom:6px">תגובה לתנודתיות ריבית?</label>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px"><input type="radio" name="q-vol" value="ok" style="accent-color:var(--teal)"> בסדר</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px"><input type="radio" name="q-vol" value="partial" style="accent-color:var(--teal)"> חלקי</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px"><input type="radio" name="q-vol" value="no" style="accent-color:var(--teal)"> לא</label>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מסלול זכאות — לבדוק?</label><select class="form-control" id="i-zchut-chk"><option>כן לבדוק</option><option>כבר נבדק</option><option>לא רלוונטי</option></select></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מענקים ממשרד השיכון?</label><select class="form-control" id="i-grants-chk"><option>לא</option><option>לבדוק</option><option>כן</option></select></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">מקור הליד</label><select class="form-control" id="i-src"><option>המלצה אישית</option><option>פייסבוק</option><option>אינסטגרם</option><option>גוגל</option><option>אתר</option><option>WhatsApp</option><option>אחר</option></select></div>
+            <div class="form-group"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">שכר טרחה (₪)</label><input class="form-control" type="number" id="i-fee" placeholder="6500"></div>
+            <div class="form-group" style="grid-column:span 2"><label class="form-label" style="color:var(--muted);font-size:11.5px;font-weight:800">הערות חופשיות</label><textarea class="form-control" id="i-notes" rows="2" placeholder="הערות..."></textarea></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa fa-chart-line"></i>ניתוח היתכנות אוטומטי</div>
+        <div id="intake-analysis-result" style="margin-top:8px;color:var(--muted);font-size:13px">הזן נתונים לחישוב...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ========== PIPELINE ========== -->
 <div id="page-pipeline" class="page">
@@ -1807,6 +1952,72 @@ function exportAmortXLS(){
 }
 function exportAll(){nav(document.querySelector('.nav-item.active').dataset.page);toast('מייצא...');}
 function dl(content,filename,type){var blob=new Blob([content],{type:type+';charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
+
+
+// ============ INTAKE ============
+function calcIntakeFeas(){
+  var inc1=parseFloat(document.getElementById('i-inc1').value)||0;
+  var inc2=parseFloat(document.getElementById('i-inc2').value)||0;
+  var loans=parseFloat(document.getElementById('i-loans').value)||0;
+  var rent=parseFloat(document.getElementById('i-rent').value)||0;
+  var aval=parseFloat(document.getElementById('i-aval').value)||0;
+  var lamt=parseFloat(document.getElementById('i-lamt').value)||0;
+  var eq=parseFloat(document.getElementById('i-eq').value)||0;
+  var pctEl=document.getElementById('i-pct');
+  if(pctEl&&aval&&lamt)pctEl.value=Math.round(lamt/aval*100)+'%';
+  else if(pctEl)pctEl.value='';
+  var totalInc=inc1+inc2,disp=totalInc-loans-rent,maxPay=disp*0.33;
+  var el=document.getElementById('intake-analysis-result');
+  if(!el)return;
+  if(!totalInc){el.innerHTML='<div style="color:var(--muted);font-size:13px">הזן נתונים לחישוב...</div>';return;}
+  var rm=0.045/12,nm=300;
+  var maxLoan=maxPay*(Math.pow(1+rm,nm)-1)/(rm*Math.pow(1+rm,nm));
+  var pct=aval&&lamt?Math.round(lamt/aval*100):0;
+  var ok=lamt<=maxLoan&&pct<=75;
+  el.innerHTML='<div style="background:'+(ok?'#f0fdf4':'#fffbeb')+';border:1.5px solid '+(ok?'#86efac':'#fcd34d')+';border-radius:10px;padding:14px">'
+    +'<div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:9px">📊 ניתוח היתכנות</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">'
+    +'<div style="background:#fff;border-radius:8px;padding:9px"><div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase">הכנסה פנויה</div><div style="font-size:16px;font-weight:800;color:var(--teal)">'+fmt(disp)+'</div></div>'
+    +'<div style="background:#fff;border-radius:8px;padding:9px"><div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase">יחס החזר מקס (33%)</div><div style="font-size:16px;font-weight:800;color:var(--teal)">'+fmt(maxPay)+'/חודש</div></div>'
+    +'<div style="background:#fff;border-radius:8px;padding:9px"><div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase">הלוואה מקסימלית</div><div style="font-size:16px;font-weight:800;color:var(--teal)">'+fmt(maxLoan)+'</div></div>'
+    +'<div style="background:#fff;border-radius:8px;padding:9px"><div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase">% מימון מבוקש</div><div style="font-size:16px;font-weight:800;color:'+(pct>75?'var(--red)':'var(--green)')+'">'+pct+'%</div></div>'
+    +'</div><div style="margin-top:10px;padding:10px;border-radius:8px;background:'+(ok?'#dcfce7':'#fee2e2')+';color:'+(ok?'#166534':'#991b1b')+';font-weight:800;font-size:13px">'+(ok?'✅ העסקה נראית סבירה! ניתן להמשיך':'⚠️ שים לב: בדוק אחוזי מימון ויחס החזר')+'</div></div>';
+}
+function resetIntake(){
+  var ids=['i-fn1','i-ln1','i-ph1','i-ag1','i-emp1n','i-vet1','i-inc1','i-fn2','i-ln2','i-ph2','i-ag2','i-emp2n','i-vet2','i-inc2','i-email','i-kids','i-inc3','i-pens','i-loans','i-rent','i-loc','i-paddr','i-aval','i-cval','i-eq','i-eqsrc','i-lamt','i-pct','i-zchut','i-grant','i-save','i-prepay-y','i-maxp1','i-maxp2','i-notes','i-fee'];
+  ids.forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  var r=document.getElementById('intake-analysis-result');if(r)r.innerHTML='הזן נתונים לחישוב...';
+  toast('✅ שאלון נוקה');
+}
+function printIntake(){window.print();}
+function submitIntake(){
+  var fn=document.getElementById('i-fn1')&&document.getElementById('i-fn1').value.trim();
+  if(!fn){toast('נא למלא לפחות שם פרטי','error');return;}
+  var ln=document.getElementById('i-ln1')&&document.getElementById('i-ln1').value||'';
+  var ph=document.getElementById('i-ph1')&&document.getElementById('i-ph1').value||'—';
+  var email=document.getElementById('i-email')&&document.getElementById('i-email').value||'';
+  var inc1=parseFloat(document.getElementById('i-inc1')&&document.getElementById('i-inc1').value)||0;
+  var inc2=parseFloat(document.getElementById('i-inc2')&&document.getElementById('i-inc2').value)||0;
+  var loans=parseFloat(document.getElementById('i-loans')&&document.getElementById('i-loans').value)||0;
+  var rent=parseFloat(document.getElementById('i-rent')&&document.getElementById('i-rent').value)||0;
+  var eq=parseFloat(document.getElementById('i-eq')&&document.getElementById('i-eq').value)||0;
+  var lamt=parseFloat(document.getElementById('i-lamt')&&document.getElementById('i-lamt').value)||0;
+  var aval=parseFloat(document.getElementById('i-aval')&&document.getElementById('i-aval').value)||0;
+  var type=document.getElementById('i-type')&&document.getElementById('i-type').value||'משכנתא חדשה';
+  var dtype=document.getElementById('i-dtype')&&document.getElementById('i-dtype').value||'ראשונה';
+  var src=document.getElementById('i-src')&&document.getElementById('i-src').value||'המלצה אישית';
+  var fee=parseFloat(document.getElementById('i-fee')&&document.getElementById('i-fee').value)||0;
+  var notes=document.getElementById('i-notes')&&document.getElementById('i-notes').value||'';
+  var emp1=document.getElementById('i-empt1')&&document.getElementById('i-empt1').value||'שכיר';
+  var emp2=document.getElementById('i-empt2')&&document.getElementById('i-empt2').value||'שכירה';
+  var c={id:Date.now(),fn:fn,ln:ln,phone:ph,email:email,id_num:'',age:parseInt(document.getElementById('i-ag1')&&document.getElementById('i-ag1').value)||0,addr:'',id2:'',dtype:dtype,val:aval,equity:eq,loan:lamt,propAddr:document.getElementById('i-paddr')&&document.getElementById('i-paddr').value||'',signed:document.getElementById('i-signed')&&document.getElementById('i-signed').value||'לא',fee:fee,type:type,inc1:inc1,emp1:emp1,inc2:inc2,emp2:emp2,loans:loans,rent:rent,source:src,stage:'שיחה ראשונה',status:'פעיל',notes:notes,createdAt:new Date().toLocaleDateString('he-IL'),files:[]};
+  DB.clients.push(c);
+  var defaultTasks=[['שלב 1 — שיחה ראשונית','שיחת ייעוץ ואיפיון ראשוני','אילן פרץ','high'],['שלב 2 — שאלון ואיפיון','מילוי שאלון מקיף','לקוח','high'],['שלב 3 — מכתב הגשה','הכנת מכתב הגשה לבנקים','אילן פרץ','med'],['שלב 4 — הגשה לבנקים','הגשה דיגיטלית לבנקים','אילן פרץ','med'],['שלב 5 — מסמכים','איסוף ובדיקת מסמכים','לקוח','med'],['שלב 6 — בחירת בנק','מכרז ריביות ובחירת בנק','אילן פרץ','high'],['שלב 7 — שמאות','תיאום שמאות מטעם הבנק','אילן פרץ','med'],['שלב 8 — חתימות','חתימות בבנק','אילן פרץ','med'],['שלב 9 — ביטחונות','ביטוח חיים + ביטוח מבנה','לקוח','med'],['שלב 10 — ביצוע','שחרור כספים וסיום','אילן פרץ','med'],['כללי','שליחת הסכם ייעוץ לחתימה','אילן פרץ','high']];
+  defaultTasks.forEach(function(t){DB.tasks.push({id:Date.now()+Math.random(),clientId:c.id,stage:t[0],title:t[1],owner:t[2],priority:t[3],dueDate:'',done:false,notes:''});});
+  renderClientsTable();renderDashboard();renderPipeline();populateClientSelects();
+  toast('✅ תיק '+fn+' '+ln+' נפתח! 11 משימות נוצרו אוטומטיות');
+  nav('clients');
+}
 
 // ============ INIT ============
 window.addEventListener('DOMContentLoaded',()=>{
