@@ -282,7 +282,7 @@ textarea.form-control{resize:vertical;min-height:80px}
     <div class="page-title-bar" id="topbar-title">לוח בקרה</div>
     <div class="topbar-search"><i class="fa fa-search" style="color:var(--muted)"></i><input placeholder="חיפוש לקוח, עסקה..." id="global-search" oninput="globalSearch(this.value)"></div>
   </div>
-  <div class="topbar-right">
+  <div class="topbar-right"><span id="autosave-dot" style="display:none;width:8px;height:8px;background:#16a34a;border-radius:50%;margin-left:4px" title="נשמר"></span>
     <div class="topbar-icon"><i class="fa fa-bell"></i><div class="notif-dot"></div></div>
     <button class="btn btn-gold btn-sm" onclick="openModal('modal-new-client')"><i class="fa fa-plus"></i> לקוח חדש</button>
     <button class="btn btn-sm btn-teal" onclick="exportAll()"><i class="fa fa-download"></i> ייצוא</button>
@@ -1288,26 +1288,77 @@ function getStageProgress(s){
 // ============ CLIENTS ============
 function renderClients(arr){
   var data=arr||DB.clients;
-  var stageC={'ליד ראשוני':'bg-gray','שיחה ראשונה':'bg-amber','איסוף מסמכים':'bg-blue','הגשה לבנקים':'bg-blue','אישור עקרוני':'bg-teal','בחירת בנק':'bg-blue',חתימות:'bg-amber',ביצוע:'bg-green'};
-  document.getElementById('clients-table').innerHTML=data.map(c=>`<tr>
-    <td><div class="td-name" style="cursor:pointer;color:var(--teal)" onclick="openClientProfile(${c.id})">${c.fn} ${c.ln}</div></td>
-    <td><a href="tel:${c.phone}" style="color:var(--teal);text-decoration:none">${c.phone}</a></td>
-    <td>${c.email?`<a href="mailto:${c.email}" style="color:var(--teal);text-decoration:none">${c.email}</a>`:'—'}</td>
-    <td>${c.id_num||'—'}</td>
-    <td><span class="badge bg-blue">${c.type}</span></td>
-    <td>${c.source}</td>
-    <td>${c.fee?fmt(c.fee):'—'}</td>
-    <td><span class="badge ${stageC[c.stage]||'bg-gray'}">${c.stage}</span></td>
-    <td>${stBadge(c.status)}</td>
-    <td>${c.createdAt}</td>
-    <td><div class="td-actions">
-      <button class="btn btn-sm btn-ghost" onclick="openClientProfile(${c.id})" title="פרופיל"><i class="fa fa-eye"></i></button>
-      ${c.email?`<a href="mailto:${c.email}" class="btn btn-sm btn-ghost" title="שלח מייל"><i class="fa fa-envelope"></i></a>`:''}
-      <a href="tel:${c.phone}" class="btn btn-sm btn-ghost" title="התקשר"><i class="fa fa-phone"></i></a>
-      <button class="btn btn-sm btn-ghost" onclick="deleteClient(${c.id})" style="color:var(--red)"><i class="fa fa-trash"></i></button>
-    </div></td>
-  </tr>`).join('');
+  var tb=document.getElementById('clients-table');
+  if(!tb)return;
+  if(!data.length){
+    tb.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:28px">אין לקוחות</td></tr>';
+    return;
+  }
+  var STAGES=['ליד ראשוני','שיחה ראשונה','איסוף מסמכים','הגשה לבנקים','אישור עקרוני','בחירת בנק','חתימות','ביצוע'];
+  var STATS=['פעיל','פולו-אפ','ממתין','הושלם','לא הגיב','ביטול'];
+  var TYPES=['משכנתא חדשה','מחזור','יד שנייה','בניה עצמית','מחיר למשתכן','השקעה','איחוד הלוואות','חוץ בנקאי'];
+  var SBG={'ליד ראשוני':'#f1f5f9;color:#475569','שיחה ראשונה':'#fef3c7;color:#92400e','איסוף מסמכים':'#dbeafe;color:#1e40af','הגשה לבנקים':'#ede9fe;color:#6d28d9','אישור עקרוני':'#ccfbf1;color:#134e4a','בחירת בנק':'#dbeafe;color:#1e40af','חתימות':'#fef3c7;color:#92400e','ביצוע':'#dcfce7;color:#166534'};
+  var STB={'פעיל':'#dcfce7;color:#166534','פולו-אפ':'#f3e8ff;color:#6b21a8','ממתין':'#fef3c7;color:#92400e','הושלם':'#ccfbf1;color:#134e4a','לא הגיב':'#fee2e2;color:#991b1b','ביטול':'#f1f5f9;color:#64748b'};
+  function selOpts(list,cur){
+    return list.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');
+  }
+  function pillStyle(map,val){
+    return 'background:'+(map[val]||'#f1f5f9;color:#475569')+';border-radius:20px;font-size:11px;font-weight:800;padding:3px 8px;cursor:pointer;';
+  }
+  tb.innerHTML=data.map(function(c){
+    var ci=c.id;
+    var wa='https://wa.me/972'+((c.phone||'').replace(/[^0-9]/g,'').replace(/^0/,''));
+    var row='<tr>';
+    row+='<td><span style="cursor:pointer;color:var(--teal);font-weight:700" onclick="openClientProfile('+ci+')">'+c.fn+' '+c.ln+'</span></td>';
+    row+='<td><a href="tel:'+c.phone+'" style="color:var(--teal);text-decoration:none">'+c.phone+'</a></td>';
+    row+='<td>'+(c.email?'<a href="mailto:'+c.email+'" style="color:var(--teal);text-decoration:none;font-size:12px">'+c.email+'</a>':'—')+'</td>';
+    row+='<td><input style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;width:85px;padding:3px 5px;border-radius:5px" value="'+(c.id_num||'')+'" placeholder="—" data-cid="'+ci+'" data-field="id_num" onchange="setClientF(this)"></td>';
+    row+='<td><select style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;cursor:pointer;padding:3px 5px;border-radius:5px;max-width:130px" data-cid="'+ci+'" data-field="type" onchange="setClientF(this)">'+selOpts(TYPES,c.type)+'</select></td>';
+    row+='<td><input style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;width:85px;padding:3px 5px;border-radius:5px" value="'+(c.source||'')+'" data-cid="'+ci+'" data-field="source" onchange="setClientF(this)"></td>';
+    row+='<td><input type="number" style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;width:62px;padding:3px 5px;border-radius:5px" value="'+(c.fee||'')+'" placeholder="0" data-cid="'+ci+'" data-field="fee" data-num="1" onchange="setClientF(this)"> ₪</td>';
+    row+='<td><select style="'+pillStyle(SBG,c.stage)+'" data-cid="'+ci+'" data-field="stage" onchange="setClientF(this);renderClients();renderDashboard();renderPipeline()">'+selOpts(STAGES,c.stage)+'</select></td>';
+    row+='<td><select style="'+pillStyle(STB,c.status)+'" data-cid="'+ci+'" data-field="status" onchange="setClientF(this);renderClients()">'+selOpts(STATS,c.status)+'</select></td>';
+    row+='<td style="font-size:12px;color:var(--muted)">'+c.createdAt+'</td>';
+    row+='<td><div class="td-actions">';
+    row+='<button class="btn btn-sm btn-ghost" onclick="openClientProfile('+ci+')" title="פרופיל"><i class="fa fa-eye"></i></button>';
+    if(c.email){row+='<a href="mailto:'+c.email+'" class="btn btn-sm btn-ghost"><i class="fa fa-envelope"></i></a>';}
+    row+='<a href="'+wa+'" target="_blank" class="btn btn-sm btn-ghost" style="color:#25d366" title="WhatsApp"><i class="fa fa-whatsapp"></i></a>';
+    row+='<a href="tel:'+c.phone+'" class="btn btn-sm btn-ghost"><i class="fa fa-phone"></i></a>';
+    row+='<button class="btn btn-sm btn-ghost" onclick="deleteClient('+ci+')" style="color:var(--red)"><i class="fa fa-trash"></i></button>';
+    row+='</div></td></tr>';
+    return row;
+  }).join('');
 }
+function setClientF(el){
+  var cid=+el.dataset.cid;
+  var field=el.dataset.field;
+  var val=el.dataset.num?+el.value:el.value;
+  var c=DB.clients.find(function(x){return x.id===cid;});
+  if(c){c[field]=val;dbAutoSave();}
+}
+function dbAutoSave(){
+  try{
+    localStorage.setItem('mpro_crm',JSON.stringify({
+      clients:DB.clients,leads:DB.leads,mortgages:DB.mortgages,
+      tasks:DB.tasks,payments:DB.payments
+    }));
+    var b=document.getElementById('autosave-dot');
+    if(b){b.style.display='inline-block';clearTimeout(b._t);b._t=setTimeout(function(){b.style.display='none';},1500);}
+  }catch(e){}
+}
+function dbAutoLoad(){
+  try{
+    var raw=localStorage.getItem('mpro_crm');
+    if(!raw)return;
+    var d=JSON.parse(raw);
+    if(d.clients&&d.clients.length)DB.clients=d.clients;
+    if(d.leads&&d.leads.length)DB.leads=d.leads;
+    if(d.mortgages&&d.mortgages.length)DB.mortgages=d.mortgages;
+    if(d.tasks&&d.tasks.length)DB.tasks=d.tasks;
+    if(d.payments&&d.payments.length)DB.payments=d.payments;
+  }catch(e){}
+}
+
 function filterClients(q){renderClients(DB.clients.filter(c=>(c.fn+' '+c.ln+c.phone+c.email).includes(q)))}
 function filterClientsByStage(s){renderClients(s?DB.clients.filter(c=>c.stage===s):null)}
 function filterClientsByType(t){renderClients(t?DB.clients.filter(c=>c.type===t):null)}
@@ -2022,6 +2073,7 @@ function submitIntake(){
 
 // ============ INIT ============
 window.addEventListener('DOMContentLoaded',()=>{
+  dbAutoLoad();
   document.getElementById('ag-date').valueAsDate=new Date();
   renderDashboard();
   renderDocChecklist();
