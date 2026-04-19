@@ -507,14 +507,45 @@ textarea.form-control{resize:vertical;min-height:80px}
 
 <!-- ========== LEADS ========== -->
 <div id="page-leads" class="page">
-  <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
-    <input class="form-control" placeholder="🔍 חיפוש ליד..." style="width:220px" oninput="filterLeads(this.value)">
-    <button class="btn btn-teal btn-sm" onclick="openModal('modal-new-lead')"><i class="fa fa-plus"></i> ליד חדש</button>
+  <!-- כותרת + פעולות -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-size:18px;font-weight:900;color:var(--teal-d)">ניהול לידים</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px" id="leads-count-line">0 לידים</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input class="form-control" placeholder="🔍 חיפוש שם/טלפון..." style="width:200px" oninput="filterLeads(this.value)">
+      <select class="form-control" style="width:140px" onchange="filterLeadsByStatus(this.value)">
+        <option value="">כל הסטטוסים</option>
+        <option>חדש</option><option>יצירת קשר</option><option>פולו-אפ</option>
+        <option>בעיבוד</option><option>לא הגיב</option><option>הפך ללקוח</option>
+      </select>
+      <select class="form-control" style="width:130px" onchange="filterLeadsByType(this.value)">
+        <option value="">כל הסוגים</option>
+        <option>מחזור</option><option>רכישה</option><option>השקעה</option>
+        <option>יד שנייה</option><option>ליווי מלא</option><option>ייעוץ/כדאיות</option>
+      </select>
+      <button class="btn btn-teal btn-sm" onclick="openModal('modal-new-lead')"><i class="fa fa-plus"></i> ליד חדש</button>
+    </div>
   </div>
-  <div class="card">
+  <!-- סטטיסטיקות מהירות -->
+  <div id="leads-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
+  <!-- טבלה -->
+  <div class="card" style="padding:0">
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>שם</th><th>טלפון</th><th>מקור</th><th>סוג בקשה</th><th>תאריך</th><th>הערות</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+        <thead><tr>
+          <th>שם מלא</th>
+          <th>טלפון</th>
+          <th>אימייל</th>
+          <th>מקור ▾</th>
+          <th>סוג לקוח ▾</th>
+          <th>שכ"ט משוער</th>
+          <th>תאריך</th>
+          <th>הערות</th>
+          <th>סטטוס ▾</th>
+          <th>פעולות</th>
+        </tr></thead>
         <tbody id="leads-table"></tbody>
       </table>
     </div>
@@ -1311,7 +1342,7 @@ function renderClients(arr){
     var row='<tr>';
     row+='<td><span style="cursor:pointer;color:var(--teal);font-weight:700" onclick="openClientProfile('+ci+')">'+c.fn+' '+c.ln+'</span></td>';
     row+='<td><a href="tel:'+c.phone+'" style="color:var(--teal);text-decoration:none">'+c.phone+'</a></td>';
-    row+='<td>'+(c.email?'<a href="mailto:'+c.email+'" style="color:var(--teal);text-decoration:none;font-size:12px">'+c.email+'</a>':'—')+'</td>';
+    row+='<td><input type="email" style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;width:140px;padding:3px 5px;border-radius:5px" value="'+(c.email||'')+'" placeholder="אימייל" data-cid="'+ci+'" data-field="email" onchange="setClientF(this)"></td>';
     row+='<td><input style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;width:85px;padding:3px 5px;border-radius:5px" value="'+(c.id_num||'')+'" placeholder="—" data-cid="'+ci+'" data-field="id_num" onchange="setClientF(this)"></td>';
     row+='<td><select style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;cursor:pointer;padding:3px 5px;border-radius:5px;max-width:130px" data-cid="'+ci+'" data-field="type" onchange="setClientF(this)">'+selOpts(TYPES,c.type)+'</select></td>';
     row+='<td><input style="border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;width:85px;padding:3px 5px;border-radius:5px" value="'+(c.source||'')+'" data-cid="'+ci+'" data-field="source" onchange="setClientF(this)"></td>';
@@ -1405,26 +1436,139 @@ function saveNewClient(){
 // ============ LEADS ============
 function renderLeads(arr){
   var data=arr||DB.leads;
-  var stMap={חדש:'bg-gray','יצירת קשר':'bg-amber','פולו-אפ':'bg-blue','הפך ללקוח':'bg-teal','לא הגיב':'bg-red'};
-  document.getElementById('leads-table').innerHTML=data.map(l=>`<tr>
-    <td class="td-name">${l.name}</td>
-    <td><a href="tel:${l.phone}" style="color:var(--teal);text-decoration:none">${l.phone}</a></td>
-    <td>${l.source}</td><td><span class="badge bg-blue">${l.type}</span></td>
-    <td>${l.date}</td><td>${l.notes||'—'}</td>
-    <td>${stBadge(l.status)}</td>
-    <td><div class="td-actions">
-      <button class="btn btn-sm btn-green" onclick="convertLead(${l.id})"><i class="fa fa-user-plus"></i> המר ללקוח</button>
-      <button class="btn btn-sm btn-ghost" onclick="deleteLead(${l.id})" style="color:var(--red)"><i class="fa fa-trash"></i></button>
-    </div></td>
-  </tr>`).join('');
+  var tb=document.getElementById('leads-table');
+  if(!tb)return;
+
+  /* update count */
+  var cl=document.getElementById('leads-count-line');
+  if(cl)cl.textContent=DB.leads.length+' לידים סה"כ | '+DB.leads.filter(function(l){return l.status==='הפך ללקוח';}).length+' הומרו';
+
+  /* stats cards */
+  var stats=document.getElementById('leads-stats');
+  if(stats){
+    var byStatus={};
+    DB.leads.forEach(function(l){byStatus[l.status]=(byStatus[l.status]||0)+1;});
+    var st=[
+      {label:'חדש',key:'חדש',bg:'#f1f5f9',fg:'#475569'},
+      {label:'פולו-אפ',key:'פולו-אפ',bg:'#dbeafe',fg:'#1e40af'},
+      {label:'בעיבוד',key:'בעיבוד',bg:'#fef3c7',fg:'#92400e'},
+      {label:'הפכו ללקוח',key:'הפך ללקוח',bg:'#dcfce7',fg:'#166534'}
+    ];
+    stats.innerHTML=st.map(function(s){
+      return '<div style="background:'+s.bg+';border-radius:10px;padding:12px 16px;border:1px solid rgba(0,0,0,.06)">'
+        +'<div style="font-size:22px;font-weight:900;color:'+s.fg+'">'+(byStatus[s.key]||0)+'</div>'
+        +'<div style="font-size:12px;font-weight:700;color:'+s.fg+';opacity:.8">'+s.label+'</div>'
+      +'</div>';
+    }).join('');
+  }
+
+  if(!data.length){
+    tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:32px">אין לידים</td></tr>';
+    return;
+  }
+
+  var LSRC=['המלצה אישית','פייסבוק','אינסטגרם','גוגל','אתר','WhatsApp','שלט','אחר'];
+  var LTYP=['מחזור','רכישה','השקעה','יד שנייה','ליווי מלא','ייעוץ/כדאיות','אחר'];
+  var LSTAT=['חדש','יצירת קשר','פולו-אפ','בעיבוד','לא הגיב','הפך ללקוח'];
+  var STB={'חדש':'#f1f5f9;color:#475569','יצירת קשר':'#fef3c7;color:#92400e','פולו-אפ':'#dbeafe;color:#1e40af','בעיבוד':'#fef3c7;color:#92400e','לא הגיב':'#fee2e2;color:#991b1b','הפך ללקוח':'#dcfce7;color:#166534'};
+  function selOpts(list,cur){return list.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');}
+  var INP='border:none;background:transparent;font-family:Heebo,sans-serif;font-size:12px;padding:3px 5px;border-radius:5px;width:100%;min-width:80px';
+  var PILL='border-radius:20px;font-size:11px;font-weight:800;padding:3px 8px;cursor:pointer;';
+
+  tb.innerHTML=data.map(function(l){
+    var li=l.id;
+    var wa='https://wa.me/972'+((l.phone||'').replace(/[^0-9]/g,'').replace(/^0/,''));
+    var stBg=STB[l.status]||'#f1f5f9;color:#475569';
+    var row='<tr>';
+    /* שם */
+    row+='<td style="font-weight:700;white-space:nowrap;color:var(--teal)">'+l.name+'</td>';
+    /* טלפון */
+    row+='<td><a href="tel:'+l.phone+'" style="color:var(--teal);text-decoration:none;font-weight:600">'+l.phone+'</a></td>';
+    /* אימייל — editable */
+    row+='<td><input style="'+INP+';width:130px" type="email" value="'+(l.email||'')+'" placeholder="אימייל" data-lid="'+li+'" data-field="email" onchange="setLeadF(this)"></td>';
+    /* מקור — dropdown */
+    row+='<td><select style="'+INP+'" data-lid="'+li+'" data-field="source" onchange="setLeadF(this)">'+selOpts(LSRC,l.source)+'</select></td>';
+    /* סוג — dropdown */
+    row+='<td><select style="'+INP+'" data-lid="'+li+'" data-field="type" onchange="setLeadF(this)">'+selOpts(LTYP,l.type)+'</select></td>';
+    /* שכ"ט */
+    row+='<td><input type="number" style="'+INP+';width:65px" value="'+(l.fee||'')+'" placeholder="₪" data-lid="'+li+'" data-field="fee" data-num="1" onchange="setLeadF(this)"> ₪</td>';
+    /* תאריך */
+    row+='<td style="font-size:12px;color:var(--muted);white-space:nowrap">'+l.date+'</td>';
+    /* הערות */
+    row+='<td><input style="'+INP+';min-width:110px;border:1px solid var(--border);border-radius:6px;padding:4px 8px" value="'+((l.notes||'').replace(/"/g,'&quot;'))+'" placeholder="הערה..." data-lid="'+li+'" data-field="notes" onchange="setLeadF(this)"></td>';
+    /* סטטוס — pill dropdown */
+    row+='<td><select style="background:'+stBg+';'+PILL+'" data-lid="'+li+'" data-field="status" onchange="setLeadF(this);renderLeads()">'+selOpts(LSTAT,l.status)+'</select></td>';
+    /* פעולות */
+    row+='<td><div class="td-actions">';
+    row+='<button class="btn btn-sm btn-green" onclick="convertLead('+li+')" title="המר ללקוח"><i class="fa fa-user-plus"></i></button>';
+    row+='<a href="'+wa+'" target="_blank" class="btn btn-sm btn-ghost" style="color:#25d366" title="WhatsApp"><i class="fa fa-whatsapp"></i></a>';
+    row+='<a href="tel:'+l.phone+'" class="btn btn-sm btn-ghost" title="התקשר"><i class="fa fa-phone"></i></a>';
+    row+='<button class="btn btn-sm btn-ghost" onclick="openLeadProfile('+li+')" title="פרטים מלאים"><i class="fa fa-eye"></i></button>';
+    row+='<button class="btn btn-sm btn-ghost" onclick="deleteLead('+li+')" style="color:var(--red)" title="מחק"><i class="fa fa-trash"></i></button>';
+    row+='</div></td>';
+    row+='</tr>';
+    return row;
+  }).join('');
 }
-function filterLeads(q){renderLeads(DB.leads.filter(l=>l.name.includes(q)||l.phone.includes(q)))}
+function setLeadF(el){
+  var lid=+el.dataset.lid;
+  var field=el.dataset.field;
+  var val=el.dataset.num?+el.value:el.value;
+  var l=DB.leads.find(function(x){return x.id===lid;});
+  if(l){l[field]=val;dbAutoSave();}
+}
+function filterLeadsByStatus(s){renderLeads(s?DB.leads.filter(function(l){return l.status===s;}):null);}
+function filterLeadsByType(t){renderLeads(t?DB.leads.filter(function(l){return l.type===t;}):null);}
+function openLeadProfile(id){
+  var l=DB.leads.find(function(x){return x.id===id;});
+  if(!l)return;
+  var wa='https://wa.me/972'+((l.phone||'').replace(/[^0-9]/g,'').replace(/^0/,''));
+  var LSRC=['המלצה אישית','פייסבוק','אינסטגרם','גוגל','אתר','WhatsApp','שלט','אחר'];
+  var LTYP=['מחזור','רכישה','השקעה','יד שנייה','ליווי מלא','ייעוץ/כדאיות','אחר'];
+  var LSTAT=['חדש','יצירת קשר','פולו-אפ','בעיבוד','לא הגיב','הפך ללקוח'];
+  function selOpts(list,cur){return list.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');}
+  var STB={'חדש':'#f1f5f9;color:#475569','יצירת קשר':'#fef3c7;color:#92400e','פולו-אפ':'#dbeafe;color:#1e40af','בעיבוד':'#fef3c7;color:#92400e','לא הגיב':'#fee2e2;color:#991b1b','הפך ללקוח':'#dcfce7;color:#166534'};
+  var li=l.id;
+  var INP='border:1px solid var(--border);border-radius:7px;padding:8px 11px;font-family:Heebo,sans-serif;font-size:13px;width:100%;background:#fff';
+  document.getElementById('profile-title').innerHTML='<i class="fa fa-bullseye" style="color:var(--teal)"></i> תיק ליד — '+l.name;
+  document.getElementById('profile-body').innerHTML=''
+    +'<div class="client-header" style="background:linear-gradient(135deg,#1e3a5f,#2563eb)">'
+      +'<div class="client-avatar" style="background:linear-gradient(135deg,#60a5fa,#2563eb)">'+l.name.charAt(0)+'</div>'
+      +'<div class="client-info">'
+        +'<h2>'+l.name+'</h2>'
+        +'<p style="font-size:12px;opacity:.8;margin:3px 0">'+l.source+' | '+l.date+'</p>'
+        +'<div style="margin-top:8px">'
+          +'<select style="background:'+( STB[l.status]||'#f1f5f9;color:#475569')+'border-radius:20px;font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;border:none" data-lid="'+li+'" data-field="status" onchange="setLeadF(this);openLeadProfile('+li+');renderLeads()">'+selOpts(LSTAT,l.status)+'</select>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="info-grid" style="margin-top:14px">'
+      +'<div class="info-item"><div class="il">שם מלא</div><div class="iv"><input style="'+INP+'" value="'+(l.name||'')+'" data-lid="'+li+'" data-field="name" onchange="setLeadF(this)"></div></div>'
+      +'<div class="info-item"><div class="il">טלפון</div><div class="iv"><input style="'+INP+';font-weight:700" value="'+(l.phone||'')+'" data-lid="'+li+'" data-field="phone" onchange="setLeadF(this)"></div></div>'
+      +'<div class="info-item"><div class="il">אימייל</div><div class="iv"><input type="email" style="'+INP+'" value="'+(l.email||'')+'" data-lid="'+li+'" data-field="email" onchange="setLeadF(this)"></div></div>'
+      +'<div class="info-item"><div class="il">מקור</div><div class="iv"><select style="'+INP+'" data-lid="'+li+'" data-field="source" onchange="setLeadF(this)">'+selOpts(LSRC,l.source)+'</select></div></div>'
+      +'<div class="info-item"><div class="il">סוג לקוח</div><div class="iv"><select style="'+INP+'" data-lid="'+li+'" data-field="type" onchange="setLeadF(this)">'+selOpts(LTYP,l.type)+'</select></div></div>'
+      +'<div class="info-item"><div class="il">שכ"ט משוער (₪)</div><div class="iv"><input type="number" style="'+INP+';font-weight:700" value="'+(l.fee||'')+'" placeholder="0" data-lid="'+li+'" data-field="fee" data-num="1" onchange="setLeadF(this)"></div></div>'
+    +'</div>'
+    +'<div style="margin:10px 0 6px"><label style="font-size:11px;font-weight:800;color:var(--muted)">הערות</label>'
+      +'<textarea style="'+INP+';min-height:70px;margin-top:4px;resize:vertical" data-lid="'+li+'" data-field="notes" onchange="setLeadF(this)">'+(l.notes||'')+'</textarea></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
+      +'<button class="btn btn-green btn-sm" onclick="convertLead('+li+');closeModal(\'modal-client-profile\')"><i class="fa fa-user-plus"></i> המר ללקוח</button>'
+      +(l.email?'<a href="mailto:'+l.email+'" class="btn btn-teal btn-sm"><i class="fa fa-envelope"></i> מייל</a>':'')
+      +'<a href="'+wa+'" target="_blank" class="btn btn-sm" style="background:#25d366;color:#fff;border-color:#25d366"><i class="fa fa-whatsapp"></i> WhatsApp</a>'
+      +'<a href="tel:'+l.phone+'" class="btn btn-sm"><i class="fa fa-phone"></i> התקשר</a>'
+    +'</div>';
+  openModal('modal-client-profile');
+}
+
+function filterLeads(q){if(!q)return renderLeads();renderLeads(DB.leads.filter(function(l){return l.name.includes(q)||l.phone.includes(q)||(l.email&&l.email.includes(q));}));}
 function saveNewLead(){
   var name=document.getElementById('nl-name').value;
   if(!name){toast('נא למלא שם','error');return;}
-  DB.leads.push({id:uid(),name,phone:document.getElementById('nl-phone').value||'—',email:document.getElementById('nl-email').value||'',source:document.getElementById('nl-source').value,type:document.getElementById('nl-type').value,date:today(),status:document.getElementById('nl-status').value,notes:document.getElementById('nl-notes').value||''});
+  var fee=document.getElementById('nl-fee')?+document.getElementById('nl-fee').value||0:0;
+  DB.leads.push({id:uid(),name:name,phone:document.getElementById('nl-phone').value||'—',email:document.getElementById('nl-email').value||'',source:document.getElementById('nl-source').value,type:document.getElementById('nl-type').value,date:today(),status:document.getElementById('nl-status').value,notes:document.getElementById('nl-notes').value||'',fee:fee});
   renderLeads();document.getElementById('badge-leads').textContent=DB.leads.length;
-  closeModal('modal-new-lead');toast('✅ ליד נוסף!');
+  dbAutoSave();closeModal('modal-new-lead');toast('✅ ליד נוסף!');
 }
 function convertLead(id){
   var l=DB.leads.find(x=>x.id===id);if(!l)return;
@@ -1789,105 +1933,205 @@ function deletePayment(id){DB.payments=DB.payments.filter(p=>p.id!==id);renderPa
 
 // ============ CLIENT PROFILE ============
 function openClientProfile(id){
-  var c=DB.clients.find(x=>x.id===id);if(!c)return;
-  var tasks=DB.tasks.filter(t=>t.clientId===id);
-  var mortgages=DB.mortgages.filter(m=>m.clientId===id);
-  var payments=DB.payments.filter(p=>p.clientId===id);
-  var stageColors={'ליד ראשוני':'bg-gray','שיחה ראשונה':'bg-amber','הגשה לבנקים':'bg-blue','אישור עקרוני':'bg-teal','בחירת בנק':'bg-blue',חתימות:'bg-amber',ביצוע:'bg-green'};
-  document.getElementById('profile-title').innerHTML=`<i class="fa fa-user" style="color:var(--teal)"></i> תיק לקוח — ${c.fn} ${c.ln}`;
-  var prog=getStageProgress(c.stage);
-  document.getElementById('profile-body').innerHTML=`
-    <div class="client-header">
-      <div class="client-avatar">${c.fn.charAt(0)}</div>
-      <div class="client-info">
-        <h2>${c.fn} ${c.ln}</h2>
-        <p>${c.type} | ${c.source} | נפתח: ${c.createdAt}</p>
-        <div class="client-status-bar">
-          <span class="badge ${stageColors[c.stage]||'bg-gray'}">${c.stage}</span>
-          ${stBadge(c.status)}
-          <span class="badge bg-blue">${c.type}</span>
-        </div>
-      </div>
-      <div style="flex:1;text-align:left">
-        <div style="font-size:11px;opacity:.7;margin-bottom:4px">התקדמות תיק ${prog}%</div>
-        <div style="background:rgba(255,255,255,.2);height:8px;border-radius:10px;width:200px"><div style="background:var(--gold-l);height:100%;border-radius:10px;width:${prog}%"></div></div>
-      </div>
-    </div>
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab(this,'prof')">פרטים</button>
-      <button class="tab" onclick="switchTab(this,'prof')">משימות (${tasks.length})</button>
-      <button class="tab" onclick="switchTab(this,'prof')">משכנתאות (${mortgages.length})</button>
-      <button class="tab" onclick="switchTab(this,'prof')">תשלומים (${payments.length})</button>
-      <button class="tab" onclick="switchTab(this,'prof')">מסמכים</button>
-    </div>
-    <!-- TAB 0: פרטים -->
-    <div class="tab-pane active" id="prof-0">
-      <div class="info-grid">
-        <div class="info-item"><div class="il">טלפון</div><div class="iv"><a href="tel:${c.phone}">${c.phone}</a></div></div>
-        <div class="info-item"><div class="il">אימייל</div><div class="iv">${c.email?`<a href="mailto:${c.email}">${c.email}</a>`:'—'}</div></div>
-        <div class="info-item"><div class="il">ת.ז.</div><div class="iv">${c.id_num||'—'}</div></div>
-        <div class="info-item"><div class="il">שווי נכס</div><div class="iv">${fmt(c.val)}</div></div>
-        <div class="info-item"><div class="il">הון עצמי</div><div class="iv">${fmt(c.equity)}</div></div>
-        <div class="info-item"><div class="il">סכום מבוקש</div><div class="iv" style="color:var(--teal)">${fmt(c.loan)}</div></div>
-        <div class="info-item"><div class="il">הכנסה 1 (${c.emp1})</div><div class="iv">${fmt(c.inc1)}</div></div>
-        <div class="info-item"><div class="il">הכנסה 2 (${c.emp2})</div><div class="iv">${fmt(c.inc2)}</div></div>
-        <div class="info-item"><div class="il">יחס החזר מקסימלי</div><div class="iv">${fmt((c.inc1+c.inc2)*0.33)}</div></div>
-        <div class="info-item"><div class="il">סוג דירה</div><div class="iv">${c.dtype}</div></div>
-        <div class="info-item"><div class="il">חוזה חתום</div><div class="iv">${c.signed}</div></div>
-        <div class="info-item"><div class="il">שכר טרחה</div><div class="iv">${fmt(c.fee)}</div></div>
-      </div>
-      ${c.propAddr?`<div class="info-item"><div class="il">כתובת הנכס</div><div class="iv">${c.propAddr}</div></div>`:''}
-      ${c.notes?`<div class="info-item" style="grid-column:1/-1"><div class="il">הערות</div><div class="iv">${c.notes}</div></div>`:''}
-      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-        ${c.email?`<a href="mailto:${c.email}" class="btn btn-teal btn-sm"><i class="fa fa-envelope"></i> שלח מייל</a>`:''}
-        <a href="tel:${c.phone}" class="btn btn-sm"><i class="fa fa-phone"></i> התקשר</a>
-        <button class="btn btn-sm" onclick="closeModal('modal-client-profile');nav('agreement','הסכם שכ\\'\\\"ט')"><i class="fa fa-file-contract"></i> הסכם שכ"ט</button>
-        <button class="btn btn-sm" onclick="closeModal('modal-client-profile');document.getElementById('cc-loan').value=${c.loan||0};document.getElementById('cc-rate').value=4.5;calcMortgage();nav('calculators','מחשבונים')"><i class="fa fa-calculator"></i> מחשבון</button>
-      </div>
-    </div>
-    <!-- TAB 1: משימות -->
-    <div class="tab-pane" id="prof-1">
-      ${tasks.length===0?'<div style="color:var(--muted);text-align:center;padding:20px">אין משימות</div>':tasks.map(t=>`
-        <div class="task-item ${t.done?'done':''}">
-          <input type="checkbox" class="task-check" ${t.done?'checked':''} onchange="toggleTask(${t.id},this)">
-          <div class="task-content">
-            <div class="task-title">${t.title}</div>
-            <div class="task-meta"><span>${t.stage}</span><span><i class="fa fa-hard-hat" style="font-size:10px"></i> ${t.owner}</span><span>${t.dueDate||'—'}</span></div>
-          </div>
-          <span class="task-priority priority-${t.priority}">${t.priority==='high'?'🔴':t.priority==='med'?'🟡':'🟢'}</span>
-        </div>`).join('')}
-    </div>
-    <!-- TAB 2: משכנתאות -->
-    <div class="tab-pane" id="prof-2">
-      ${mortgages.length===0?'<div style="color:var(--muted);text-align:center;padding:20px">אין משכנתאות</div>':mortgages.map(m=>`
-        <div class="info-grid">
-          <div class="info-item"><div class="il">סכום</div><div class="iv">${fmt(m.amount)}</div></div>
-          <div class="info-item"><div class="il">בנק</div><div class="iv">${m.bank}</div></div>
-          <div class="info-item"><div class="il">ריבית / תקופה</div><div class="iv">${m.rate}% / ${m.years} שנים</div></div>
-          <div class="info-item"><div class="il">החזר חודשי</div><div class="iv" style="color:var(--teal)">${fmt(m.monthly)}</div></div>
-          <div class="info-item"><div class="il">סטטוס</div><div class="iv">${stBadge(m.status)}</div></div>
-          <div class="info-item"><div class="il">יעד סיום</div><div class="iv">${m.dueDate||'—'}</div></div>
-        </div>`).join('')}
-    </div>
-    <!-- TAB 3: תשלומים -->
-    <div class="tab-pane" id="prof-3">
-      ${payments.length===0?'<div style="color:var(--muted);text-align:center;padding:20px">אין תשלומים רשומים</div>':
-        `<table><thead><tr><th>סוג</th><th>סכום</th><th>תאריך</th><th>סטטוס</th></tr></thead>
-        <tbody>${payments.map(p=>`<tr><td>${p.type}</td><td>${fmt(p.amount)}</td><td>${p.date}</td><td>${stBadge(p.status)}</td></tr>`).join('')}</tbody></table>
-        <div style="margin-top:10px;font-weight:700;color:var(--teal)">סה"כ שולם: ${fmt(payments.filter(p=>p.status==='שולם').reduce((s,p)=>s+p.amount,0))}</div>`}
-    </div>
-    <!-- TAB 4: מסמכים -->
-    <div class="tab-pane" id="prof-4">
-      <div class="upload-zone" onclick="document.getElementById('prof-file-${c.id}').click()">
-        <i class="fa fa-file-upload"></i>
-        <p><strong>העלה מסמכים</strong> לתיק הלקוח<br><small>PDF, JPG, PNG, DOCX</small></p>
-      </div>
-      <input type="file" id="prof-file-${c.id}" style="display:none" multiple onchange="handleClientFiles(${c.id},this)">
-      <div id="prof-files-${c.id}" style="margin-top:10px"></div>
-    </div>
-  `;
+  var c=DB.clients.find(function(x){return x.id===id;});
+  if(!c)return;
+  var tasks    = DB.tasks.filter(function(t){return t.clientId===id;});
+  var mortgages= DB.mortgages.filter(function(m){return m.clientId===id;});
+  var payments = DB.payments.filter(function(p){return p.clientId===id;});
+  var prog     = getStageProgress(c.stage);
+  var ci       = c.id;
+  var wa       = 'https://wa.me/972'+((c.phone||'').replace(/[^0-9]/g,'').replace(/^0/,''));
+
+  var STAGES=['ליד ראשוני','שיחה ראשונה','איסוף מסמכים','הגשה לבנקים','אישור עקרוני','בחירת בנק','חתימות','ביצוע'];
+  var STATS  =['פעיל','פולו-אפ','ממתין','הושלם','לא הגיב','ביטול'];
+  var SBG={'ליד ראשוני':'#f1f5f9;color:#475569','שיחה ראשונה':'#fef3c7;color:#92400e','איסוף מסמכים':'#dbeafe;color:#1e40af','הגשה לבנקים':'#ede9fe;color:#6d28d9','אישור עקרוני':'#ccfbf1;color:#134e4a','בחירת בנק':'#dbeafe;color:#1e40af','חתימות':'#fef3c7;color:#92400e','ביצוע':'#dcfce7;color:#166534'};
+  var STB={'פעיל':'#dcfce7;color:#166534','פולו-אפ':'#f3e8ff;color:#6b21a8','ממתין':'#fef3c7;color:#92400e','הושלם':'#ccfbf1;color:#134e4a','לא הגיב':'#fee2e2;color:#991b1b','ביטול':'#f1f5f9;color:#64748b'};
+  function selOpts(list,cur){return list.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');}
+  function pill(map,val){return 'background:'+(map[val]||'#f1f5f9;color:#475569')+';border-radius:20px;font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;';}
+  function ed(f,v,extra){
+    var st='border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-family:Heebo,sans-serif;font-size:13px;width:100%;background:#fff;';
+    if(extra)st+=extra;
+    return '<input style="'+st+'" value="'+(v||'')+'" data-cid="'+ci+'" data-field="'+f+'" onchange="setClientF(this);dbAutoSave()">';
+  }
+  function edN(f,v,extra){
+    var st='border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-family:Heebo,sans-serif;font-size:13px;width:100%;background:#fff;';
+    if(extra)st+=extra;
+    return '<input type="number" style="'+st+'" value="'+(v||'')+'" data-cid="'+ci+'" data-field="'+f+'" data-num="1" onchange="setClientF(this);dbAutoSave()">';
+  }
+  function edSel(f,list,cur,extra){
+    var st='border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-family:Heebo,sans-serif;font-size:13px;width:100%;background:#fff;cursor:pointer;';
+    if(extra)st+=extra;
+    return '<select style="'+st+'" data-cid="'+ci+'" data-field="'+f+'" onchange="setClientF(this);dbAutoSave()">'+selOpts(list,cur)+'</select>';
+  }
+
+  document.getElementById('profile-title').innerHTML='<i class="fa fa-user" style="color:var(--teal)"></i> תיק לקוח — '+c.fn+' '+c.ln;
+
+  /* ── HEADER ── */
+  var header=''
+    +'<div class="client-header">'
+      +'<div class="client-avatar">'+c.fn.charAt(0)+'</div>'
+      +'<div class="client-info">'
+        +'<h2>'+c.fn+' '+c.ln+'</h2>'
+        +'<p style="font-size:12px;opacity:.8;margin:3px 0">'+c.type+' | '+c.source+' | נפתח: '+c.createdAt+'</p>'
+        +'<div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap">'
+          +'<select style="'+pill(SBG,c.stage)+'" data-cid="'+ci+'" data-field="stage" onchange="setClientF(this);dbAutoSave();openClientProfile('+ci+');renderClients();renderDashboard()">'+selOpts(STAGES,c.stage)+'</select>'
+          +'<select style="'+pill(STB,c.status)+'" data-cid="'+ci+'" data-field="status" onchange="setClientF(this);dbAutoSave();openClientProfile('+ci+');renderClients()">'+selOpts(STATS,c.status)+'</select>'
+        +'</div>'
+      +'</div>'
+      +'<div style="margin-right:0;margin-left:auto;text-align:left">'
+        +'<div style="font-size:11px;opacity:.65;margin-bottom:4px">התקדמות '+prog+'%</div>'
+        +'<div style="background:rgba(255,255,255,.2);height:8px;border-radius:10px;width:160px">'
+          +'<div style="background:var(--gold-l);height:100%;border-radius:10px;width:'+prog+'%"></div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+
+  /* ── TABS ── */
+  var tabs=''
+    +'<div class="tabs">'
+      +'<button class="tab active" onclick="switchTab(this,\'prof\')">פרטים</button>'
+      +'<button class="tab" onclick="switchTab(this,\'prof\')">משימות ('+tasks.length+')</button>'
+      +'<button class="tab" onclick="switchTab(this,\'prof\')">משכנתאות ('+mortgages.length+')</button>'
+      +'<button class="tab" onclick="switchTab(this,\'prof\')">תשלומים ('+payments.length+')</button>'
+      +'<button class="tab" onclick="switchTab(this,\'prof\')">מסמכים</button>'
+    +'</div>';
+
+  /* ── TAB 0: פרטים (editable) ── */
+  var t0=''
+    +'<div class="info-grid">'
+      +'<div class="info-item"><div class="il">טלפון</div><div class="iv">'+ed('phone',c.phone,'font-weight:700')+'</div></div>'
+      +'<div class="info-item"><div class="il">אימייל</div><div class="iv"><input type="email" style="border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-family:Heebo,sans-serif;font-size:13px;width:100%;background:#fff" value="'+(c.email||'')+'" data-cid="'+ci+'" data-field="email" onchange="setClientF(this);dbAutoSave()"></div></div>'
+      +'<div class="info-item"><div class="il">ת.ז.</div><div class="iv">'+ed('id_num',c.id_num)+'</div></div>'
+      +'<div class="info-item"><div class="il">שווי נכס (₪)</div><div class="iv">'+edN('val',c.val,'color:var(--teal);font-weight:700')+'</div></div>'
+      +'<div class="info-item"><div class="il">הון עצמי (₪)</div><div class="iv">'+edN('equity',c.equity)+'</div></div>'
+      +'<div class="info-item"><div class="il">סכום מבוקש (₪)</div><div class="iv">'+edN('loan',c.loan,'color:var(--teal);font-weight:800')+'</div></div>'
+      +'<div class="info-item"><div class="il">הכנסה 1 ('+c.emp1+')</div><div class="iv">'+edN('inc1',c.inc1)+'</div></div>'
+      +'<div class="info-item"><div class="il">הכנסה 2 ('+c.emp2+')</div><div class="iv">'+edN('inc2',c.inc2)+'</div></div>'
+      +'<div class="info-item"><div class="il">יחס החזר מקס</div><div class="iv" style="font-weight:700;color:var(--teal)">'+fmt((c.inc1+c.inc2)*0.33)+'</div></div>'
+      +'<div class="info-item"><div class="il">סוג דירה</div><div class="iv">'+edSel('dtype',['ראשונה','נוספת','חליפית'],c.dtype)+'</div></div>'
+      +'<div class="info-item"><div class="il">חוזה חתום</div><div class="iv">'+edSel('signed',['לא','כן'],c.signed)+'</div></div>'
+      +'<div class="info-item"><div class="il">שכר טרחה (₪)</div><div class="iv">'+edN('fee',c.fee,'font-weight:700')+'</div></div>'
+    +'</div>'
+    +'<div style="margin:10px 0 6px"><label style="font-size:11px;font-weight:800;color:var(--muted)">כתובת הנכס</label>'
+      +'<input style="border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-family:Heebo,sans-serif;font-size:13px;width:100%;margin-top:4px;background:#fff" value="'+(c.propAddr||'')+'" placeholder="כתובת הנכס" data-cid="'+ci+'" data-field="propAddr" onchange="setClientF(this);dbAutoSave()"></div>'
+    +'<div style="margin-bottom:12px"><label style="font-size:11px;font-weight:800;color:var(--muted)">הערות</label>'
+      +'<textarea style="border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-family:Heebo,sans-serif;font-size:13px;width:100%;margin-top:4px;min-height:60px;background:#fff;resize:vertical" data-cid="'+ci+'" data-field="notes" onchange="setClientF(this);dbAutoSave()">'+(c.notes||'')+'</textarea></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+      +(c.email?'<a href="mailto:'+c.email+'" class="btn btn-teal btn-sm"><i class="fa fa-envelope"></i> שלח מייל</a>':'')
+      +'<a href="'+wa+'" target="_blank" class="btn btn-sm" style="background:#25d366;color:#fff;border-color:#25d366"><i class="fa fa-whatsapp"></i> WhatsApp</a>'
+      +'<a href="tel:'+c.phone+'" class="btn btn-sm"><i class="fa fa-phone"></i> התקשר</a>'
+      +'<button class="btn btn-sm" onclick="openModal(\'modal-new-payment\');setTimeout(function(){var s=document.getElementById(\'pay-client\');if(s)s.value='+ci+';},80)"><i class="fa fa-shekel-sign"></i> תשלום חדש</button>'
+      +'<button class="btn btn-sm" onclick="openModal(\'modal-new-task\');setTimeout(function(){var s=document.getElementById(\'nt-client\');if(s)s.value='+ci+';},80)"><i class="fa fa-tasks"></i> משימה חדשה</button>'
+      +'<button class="btn btn-sm" onclick="closeModal(\'modal-client-profile\');nav(\'agreement\')"><i class="fa fa-file-contract"></i> הסכם שכ"ט</button>'
+      +'<button class="btn btn-sm" onclick="closeModal(\'modal-client-profile\');document.getElementById(\'cc-loan\').value='+(c.loan||0)+';calcMortgage();nav(\'calculators\')"><i class="fa fa-calculator"></i> מחשבון</button>'
+    +'</div>';
+
+  /* ── TAB 1: משימות ── */
+  var t1=''
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px">'
+      +'<button class="btn btn-teal btn-sm" onclick="openModal(\'modal-new-task\');setTimeout(function(){var s=document.getElementById(\'nt-client\');if(s)s.value='+ci+';},80)"><i class="fa fa-plus"></i> משימה חדשה</button>'
+    +'</div>';
+  if(tasks.length===0){
+    t1+='<div style="color:var(--muted);text-align:center;padding:28px">אין משימות ללקוח זה</div>';
+  } else {
+    t1+=tasks.map(function(t){
+      return '<div class="task-item '+(t.done?'done':'')+'">'
+        +'<input type="checkbox" class="task-check" '+(t.done?'checked':'')+' onchange="toggleTask('+t.id+',this)">'
+        +'<div class="task-content">'
+          +'<div class="task-title">'+t.title+'</div>'
+          +'<div class="task-meta">'
+            +'<span>'+t.stage+'</span>'
+            +'<span><i class="fa fa-user" style="font-size:10px"></i> '+t.owner+'</span>'
+            +'<span>'+(t.dueDate||'—')+'</span>'
+          +'</div>'
+        +'</div>'
+        +'<span class="task-priority priority-'+t.priority+'">'+(t.priority==='high'?'🔴':t.priority==='med'?'🟡':'🟢')+'</span>'
+      +'</div>';
+    }).join('');
+  }
+
+  /* ── TAB 2: משכנתאות ── */
+  var t2=''
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px">'
+      +'<button class="btn btn-teal btn-sm" onclick="openModal(\'modal-new-mortgage\');setTimeout(function(){var s=document.getElementById(\'nm-client\');if(s)s.value='+ci+';},80)"><i class="fa fa-plus"></i> משכנתא חדשה</button>'
+    +'</div>';
+  if(mortgages.length===0){
+    t2+='<div style="color:var(--muted);text-align:center;padding:28px">אין משכנתאות ללקוח זה</div>';
+  } else {
+    t2+=mortgages.map(function(m){
+      return '<div class="info-grid" style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">'
+        +'<div class="info-item"><div class="il">סכום</div><div class="iv" style="color:var(--teal);font-weight:800">'+fmt(m.amount)+'</div></div>'
+        +'<div class="info-item"><div class="il">בנק</div><div class="iv">'+m.bank+'</div></div>'
+        +'<div class="info-item"><div class="il">ריבית</div><div class="iv">'+(m.rate||'—')+'%</div></div>'
+        +'<div class="info-item"><div class="il">שנים</div><div class="iv">'+(m.years||'—')+'</div></div>'
+        +'<div class="info-item"><div class="il">החזר חודשי</div><div class="iv" style="color:var(--teal);font-weight:800">'+fmt(m.monthly)+'</div></div>'
+        +'<div class="info-item"><div class="il">סטטוס</div><div class="iv">'+stBadge(m.status)+'</div></div>'
+      +'</div>';
+    }).join('');
+  }
+
+  /* ── TAB 3: תשלומים ── */
+  var paid=payments.filter(function(p){return p.status==='שולם';}).reduce(function(s,p){return s+p.amount;},0);
+  var t3=''
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px">'
+      +'<button class="btn btn-teal btn-sm" onclick="openModal(\'modal-new-payment\');setTimeout(function(){var s=document.getElementById(\'pay-client\');if(s)s.value='+ci+';},80)"><i class="fa fa-plus"></i> תשלום חדש</button>'
+    +'</div>';
+  if(payments.length===0){
+    t3+='<div style="color:var(--muted);text-align:center;padding:28px">אין תשלומים ללקוח זה</div>';
+  } else {
+    t3+=''
+      +'<table style="width:100%;border-collapse:collapse;font-size:13px">'
+        +'<thead><tr>'
+          +'<th style="padding:8px;text-align:right;border-bottom:2px solid var(--border);font-size:11px;color:var(--muted)">סוג</th>'
+          +'<th style="padding:8px;text-align:right;border-bottom:2px solid var(--border);font-size:11px;color:var(--muted)">סכום</th>'
+          +'<th style="padding:8px;text-align:right;border-bottom:2px solid var(--border);font-size:11px;color:var(--muted)">תאריך</th>'
+          +'<th style="padding:8px;text-align:right;border-bottom:2px solid var(--border);font-size:11px;color:var(--muted)">סטטוס</th>'
+        +'</tr></thead>'
+        +'<tbody>'
+        +payments.map(function(p){
+          return '<tr>'
+            +'<td style="padding:8px;border-bottom:1px solid var(--border)">'+p.type+'</td>'
+            +'<td style="padding:8px;border-bottom:1px solid var(--border);font-weight:700;color:var(--teal)">'+fmt(p.amount)+'</td>'
+            +'<td style="padding:8px;border-bottom:1px solid var(--border);font-size:12px">'+(p.date||'—')+'</td>'
+            +'<td style="padding:8px;border-bottom:1px solid var(--border)">'+stBadge(p.status)+'</td>'
+          +'</tr>';
+        }).join('')
+        +'</tbody>'
+      +'</table>'
+      +'<div style="margin-top:12px;padding:11px 16px;background:var(--teal-bg);border-radius:8px;display:flex;justify-content:space-between;font-weight:700">'
+        +'<span>סה"כ שולם</span>'
+        +'<span style="font-size:16px;color:var(--white)">'+fmt(paid)+'</span>'
+      +'</div>';
+  }
+
+  /* ── TAB 4: מסמכים ── */
+  var existFiles=(c.files||[]).map(function(f){
+    return '<div class="file-item">'
+      +'<div class="file-icon">📄</div>'
+      +'<div class="file-info"><div class="file-name">'+f.name+'</div><div class="file-size">'+f.size+' • '+f.date+'</div></div>'
+      +'<button class="btn btn-sm btn-ghost"><i class="fa fa-download"></i></button>'
+    +'</div>';
+  }).join('');
+  if(!existFiles) existFiles='<div style="color:var(--muted);font-size:13px;text-align:center;padding:10px">אין קבצים מועלים</div>';
+  var t4=''
+    +'<div class="upload-zone" onclick="document.getElementById(\'prof-file-'+ci+'\').click()" style="margin-bottom:12px">'
+      +'<i class="fa fa-file-upload"></i>'
+      +'<p><strong>העלה מסמכים</strong> לתיק הלקוח<br><small>PDF, JPG, PNG, DOCX</small></p>'
+    +'</div>'
+    +'<input type="file" id="prof-file-'+ci+'" style="display:none" multiple onchange="handleClientFiles('+ci+',this)">'
+    +'<div id="prof-files-'+ci+'">'+existFiles+'</div>';
+
+  /* ── ASSEMBLE ── */
+  document.getElementById('profile-body').innerHTML=header+tabs
+    +'<div class="tab-pane active" id="prof-0">'+t0+'</div>'
+    +'<div class="tab-pane" id="prof-1">'+t1+'</div>'
+    +'<div class="tab-pane" id="prof-2">'+t2+'</div>'
+    +'<div class="tab-pane" id="prof-3">'+t3+'</div>'
+    +'<div class="tab-pane" id="prof-4">'+t4+'</div>';
+
   openModal('modal-client-profile');
 }
+
 function handleClientFiles(cid,inp){
   var c=DB.clients.find(x=>x.id===cid);
   if(!c.files)c.files=[];
