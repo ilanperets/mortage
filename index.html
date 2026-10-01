@@ -43996,7 +43996,7 @@ html body #page-temahil .actionbar .mp-pop{right:auto;left:0}
         if(!ex){ex=document.createElement('div');ex.className='mp-exp';r.el.insertAdjacentElement('afterend',ex);ex.addEventListener('click',function(ev){var c=ev.target.closest('.mp-xclose');if(c){expanded[c.dataset.xi]=false;ui();}});}if(ex._h!==eh){ex.innerHTML=eh;ex._h=eh;}}else if(ex)ex.remove();});
     fmt(d);groups(d);valid(d);
     if(!cur)cur=snap();}
-  function fmt(d){d.querySelectorAll('.fldin[data-field="amount"],.fldin[data-field="rate"]').forEach(function(inp){var fld=inp.closest('.fld');if(!fld)return;fld.classList.add('mp-hasfmt');var sp=fld.querySelector('.mp-fmt');if(!sp){sp=document.createElement('span');sp.className='mp-fmt';fld.appendChild(sp);}
+  function fmt(d){d.querySelectorAll('.fldin[data-field="amount"],.fldin[data-field="rate"]').forEach(function(inp){var fld=inp.closest('.fld');if(!fld)return;if(!fld.classList.contains('mp-hasfmt'))fld.classList.add('mp-hasfmt');var sp=fld.querySelector('.mp-fmt');if(!sp){sp=document.createElement('span');sp.className='mp-fmt';fld.appendChild(sp);}
     var v=num(inp.value);var tx=inp.dataset.field==='amount'?(v?'₪'+Math.round(v).toLocaleString('he-IL'):'—'):(inp.value!==''?v.toFixed(2)+'%':'—');if(sp.textContent!==tx)sp.textContent=tx;});}
   function groups(d){var head=d.querySelector('.thead .gcols');if(!head)return;var thead=head.parentElement;var g=thead.previousElementSibling&&thead.previousElementSibling.classList.contains('mp-groups')?thead.previousElementSibling:null;
     var tpl=getComputedStyle(head).gridTemplateColumns;if(!tpl||tpl==='none')return;if(!g){g=document.createElement('div');g.className='mp-groups';thead.parentNode.insertBefore(g,thead);}
@@ -44207,18 +44207,18 @@ html body #bk-card .mg-hub{margin-top:10px;display:flex;align-items:center;gap:8
       var a=localStorage.getItem('perez_active_client_v1');if(a&&cids[a]){try{window.PEREZ_acb_set&&PEREZ_acb_set(null);}catch(e){}localStorage.removeItem('perez_active_client_v1');}
       save();t('✓ נמחקו '+list.length+' רשומות');var n=document.querySelector('.sidebar .nav-item[data-page="clients"]');if(n)setTimeout(function(){n.click();},100);};
     try{window.PEREZ_backup?PEREZ_backup.snapshot(true).then(go,go):go();}catch(e){go();}}
-  function clientsUI(){var b=document.getElementById('cl-bulk');if(b&&!b.querySelector('.mg-del')){var clr=b.querySelector('[data-b="clear"]');var all=document.createElement('button');all.className='mg-all';all.textContent='בחר הכל';all.onclick=function(e){e.stopPropagation();selectAllClients();};var del=document.createElement('button');del.className='mg-del';del.textContent='🗑 מחק נבחרים';del.onclick=function(e){e.stopPropagation();deleteClients(picked());};if(clr){b.insertBefore(all,clr);b.insertBefore(del,clr);}else{b.appendChild(all);b.appendChild(del);}}
+  function clientsUI(){var pgc=document.getElementById('page-clients');if(!pgc||pgc.offsetParent===null)return;var b=document.getElementById('cl-bulk');if(b&&b.children.length&&!b.querySelector('.mg-del')){var clr=b.querySelector('[data-b="clear"]');var all=document.createElement('button');all.className='mg-all';all.textContent='בחר הכל';all.onclick=function(e){e.stopPropagation();selectAllClients();};var del=document.createElement('button');del.className='mg-del';del.textContent='🗑 מחק נבחרים';del.onclick=function(e){e.stopPropagation();deleteClients(picked());};if(clr){b.insertBefore(all,clr);b.insertBefore(del,clr);}else{b.appendChild(all);b.appendChild(del);}}
     var page=document.getElementById('page-clients');if(!page||page.offsetParent===null)return;var acts=page.querySelector(':scope > .page-header .page-actions')||page.querySelector('.page-actions');if(acts&&!acts.querySelector('.mg-selall')){var x=document.createElement('button');x.className='mg-selall';x.type='button';x.innerHTML='☑ בחר הכל';x.onclick=selectAllClients;acts.insertBefore(x,acts.firstChild);}}
   /* ---------- משימות: מצב בחירה + מחיקה ---------- */
   var TSEL={};
   function tkRows(){return [].slice.call(document.querySelectorAll('#tkv .tk'));}
   function tkId(r){return r.getAttribute('data-tid');}
-  function tasksUI(){var page=document.getElementById('page-tasks');var tkv=document.getElementById('tkv');if(!page||!tkv)return;var on=tkv.classList.contains('mg-sel');
+  function tasksUI(){var page=document.getElementById('page-tasks');var tkv=document.getElementById('tkv');if(!page||!tkv)return;if(page.offsetParent===null&&!tkv.classList.contains('mg-sel')){var bb=document.getElementById('tk-bulk');if(bb&&bb.classList.contains('show'))bb.classList.remove('show');return;}var on=tkv.classList.contains('mg-sel');
     var acts=page.querySelector(':scope > .page-header .page-actions')||page.querySelector('#tkv .tk-head .tk-actions')||page.querySelector('.page-actions');
     if(page.offsetParent!==null&&acts&&!acts.querySelector('.mg-selall')){var x=document.createElement('button');x.className='mg-selall';x.type='button';x.onclick=function(){tkv.classList.toggle('mg-sel');TSEL={};tasksUI();};acts.insertBefore(x,acts.firstChild);}
     var sb=acts&&acts.querySelector('.mg-selall');if(sb){var h=on?'✕ סיים בחירה':'☑ בחירה ומחיקה';if(sb.textContent!==h)sb.textContent=h;}
-    if(on)tkRows().forEach(function(r){var id=tkId(r);if(!id)return;if(!r.querySelector('.mg-chk')){var c=document.createElement('span');c.className='mg-chk';r.appendChild(c);}r.classList.toggle('mg-picked',!!TSEL[id]);});
-    else tkRows().forEach(function(r){r.classList.remove('mg-picked');var c=r.querySelector('.mg-chk');if(c)c.remove();});
+    if(on)tkRows().forEach(function(r){var id=tkId(r);if(!id)return;if(!r.querySelector('.mg-chk')){var c=document.createElement('span');c.className='mg-chk';r.appendChild(c);}var want=!!TSEL[id];if(r.classList.contains('mg-picked')!==want)r.classList.toggle('mg-picked',want);});
+    else tkRows().forEach(function(r){if(r.classList.contains('mg-picked'))r.classList.remove('mg-picked');var c=r.querySelector('.mg-chk');if(c)c.remove();});
     var b=document.getElementById('tk-bulk');if(!b){b=document.createElement('div');b.id='tk-bulk';document.body.appendChild(b);b.addEventListener('click',onBulk);}
     var n=Object.keys(TSEL).length;var done=(DB.tasks||[]).filter(function(x){return x.done;}).length;var hh='<span>נבחרו <b>'+n+'</b></span><button data-a="all" class="mg-all">בחר הכל</button><button data-a="del" class="mg-del">🗑 מחק נבחרים</button><button data-a="done">מחק שבוצעו ('+done+')</button><button data-a="off">ביטול</button>';
     if(b._h!==hh){b.innerHTML=hh;b._h=hh;}b.classList.toggle('show',on&&page.offsetParent!==null);}
@@ -44248,13 +44248,13 @@ html body #bk-card .mg-hub{margin-top:10px;display:flex;align-items:center;gap:8
 /* V159 — מסך כניסה: אותם צבעים (סגול עמוק + זהב), רמת גימור גבוהה יותר, גופן נקי */
 html body #auth-screen.auth-wrap:not([style*="display: none"]):not([style*="display:none"]){display:flex !important}
 html body #auth-screen.auth-wrap{align-items:center !important;justify-content:center !important;min-height:100vh;padding:24px 18px !important;font-family:Heebo,Assistant,-apple-system,"SF Hebrew",system-ui,Arial,sans-serif !important;-webkit-font-smoothing:antialiased;position:relative;overflow:hidden}
-html body #auth-screen .kmlg-mesh{position:absolute !important;inset:0 !important;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(124,92,214,.55),transparent 70%),radial-gradient(ellipse 60% 40% at 85% 100%,rgba(228,197,104,.14),transparent 70%),radial-gradient(ellipse 50% 40% at 10% 80%,rgba(109,79,194,.35),transparent 70%) !important;filter:none !important;opacity:1 !important;animation:lgMesh 14s ease-in-out infinite alternate !important;pointer-events:none}
+html body #auth-screen .kmlg-mesh{position:absolute !important;inset:0 !important;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(124,92,214,.55),transparent 70%),radial-gradient(ellipse 60% 40% at 85% 100%,rgba(228,197,104,.14),transparent 70%),radial-gradient(ellipse 50% 40% at 10% 80%,rgba(109,79,194,.35),transparent 70%),radial-gradient(ellipse at 50% -10%,#4A2E9E 0%,#2A1A66 38%,#170E3D 70%,#0E0826 100%) !important;filter:none !important;opacity:1 !important;animation:none !important;transform:none !important;pointer-events:none;z-index:0 !important}
 @keyframes lgMesh{from{transform:translateY(0) scale(1)}to{transform:translateY(-14px) scale(1.04)}}
 html body #auth-screen .kmlg-vig{position:absolute !important;inset:0 !important;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 40px) !important;-webkit-mask:radial-gradient(ellipse at center,#000 30%,transparent 75%);mask:radial-gradient(ellipse at center,#000 30%,transparent 75%);opacity:1 !important;pointer-events:none}
 html body #auth-screen .auth-card{position:relative;z-index:1;width:100% !important;max-width:420px !important;margin:0 auto !important;padding:40px 30px 30px !important;border-radius:28px !important;background:linear-gradient(180deg,rgba(40,26,86,.72),rgba(22,14,50,.82)) !important;border:1px solid rgba(255,255,255,.08) !important;box-shadow:0 40px 80px -30px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06) !important;backdrop-filter:blur(18px) saturate(1.2) !important;-webkit-backdrop-filter:blur(18px) saturate(1.2) !important;animation:lgIn .7s cubic-bezier(.2,.7,.3,1) both}
 html body #auth-screen .auth-card::before{content:"" !important;display:block !important;position:absolute !important;inset:0 !important;border-radius:28px !important;padding:1px !important;background:linear-gradient(160deg,rgba(228,197,104,.55),rgba(228,197,104,.05) 35%,rgba(124,92,214,.15) 70%,rgba(228,197,104,.35)) !important;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0) !important;-webkit-mask-composite:xor !important;mask-composite:exclude !important;pointer-events:none !important;opacity:1 !important;filter:none !important;animation:none !important;transform:none !important}
 html body #auth-screen .auth-card::after{display:none !important}
-@keyframes lgIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes lgIn{from{opacity:0}to{opacity:1}}
 html body #auth-screen .auth-brand{display:flex !important;flex-direction:column !important;align-items:center !important;gap:14px !important;margin:0 0 26px !important;padding:0 !important;border:0 !important;background:none !important}
 html body #auth-screen .auth-brand::before{display:none !important}
 html body #auth-screen .auth-brand-icon{width:78px !important;height:78px !important;border-radius:22px !important;background:none !important;border:0 !important;box-shadow:0 0 0 1px rgba(228,197,104,.35),0 16px 40px -12px rgba(228,197,104,.35),0 0 60px -10px rgba(124,92,214,.8) !important;overflow:hidden;animation:none !important;position:relative}
@@ -44284,11 +44284,303 @@ html body #auth-screen .auth-switch a{color:#E4C568 !important;-webkit-text-fill
 html body #auth-screen #auth-login::after{content:"🔒  חיבור מאובטח · הנתונים נשמרים במכשיר שלך";display:block;text-align:center;margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);font:500 11.5px Assistant,-apple-system,"SF Hebrew",system-ui,sans-serif;color:rgba(233,226,255,.42);letter-spacing:0}
 @media (max-width:420px){html body #auth-screen .auth-card{padding:34px 22px 24px !important;border-radius:24px !important}html body #auth-screen .auth-brand-text h1{font-size:29px !important}}
 </style>
-<script id="perez-v159-login-js">
-(function(){var BG='radial-gradient(ellipse at 50% -10%,#4A2E9E 0%,#2A1A66 38%,#170E3D 70%,#0E0826 100%)';
-function fix(){var a=document.getElementById('auth-screen');if(!a)return;if(/display:\s*none/.test(a.getAttribute('style')||''))return;if((a.style.getPropertyValue('background')||'').indexOf('radial-gradient')<0)a.style.setProperty('background',BG,'important');}
-fix();document.addEventListener('DOMContentLoaded',fix);var n=0,t=setInterval(function(){fix();if(++n>40)clearInterval(t);},250);
-var a0=document.getElementById('auth-screen');if(a0)new MutationObserver(fix).observe(a0,{attributes:true,attributeFilter:['style']});})();
+
+<style id="perez-v160-stable-css">
+/* V160 — יציבות: מעברי עמוד בלי קפיצות */
+main.content > .page.active,.content > .page.active{animation:perezPageIn .16s ease-out both !important}
+@keyframes perezPageIn{from{opacity:0}to{opacity:1}}
+.topbar .page-title-area{flex:0 0 auto !important;min-width:210px}
+.topbar .topbar-search{flex:0 1 380px !important;min-width:220px}
+
+/* V160 — יציבות שלב 2: פריסה קבועה לסרגל העליון ולפס הלקוח */
+.topbar .page-title-area{flex:0 0 260px !important;width:260px !important;min-width:0 !important;overflow:hidden}
+.topbar #page-title{white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important}
+.topbar .topbar-search{flex:0 0 360px !important;width:360px !important}
+@media (max-width:900px){.topbar .page-title-area{flex:1 1 auto !important;width:auto !important}.topbar .topbar-search{flex:0 1 auto !important;width:auto !important}}
+@media (min-width:761px){#active-client-bar:not(.hidden){min-height:74px}}
+#page-dashboard .v75-hsheen,#page-pipeline .hsheen{animation:none !important}
+</style>
+<script id="perez-v160-stable-js">
+/* V160 — יציבות: עוצר "לולאות אכיפה" שכותבות שוב ושוב את אותו סגנון/תוכן — גורם עיקרי לריצודים */
+(function(){
+  var SP=CSSStyleDeclaration.prototype,orig=SP.setProperty,W=new WeakMap();
+  SP.setProperty=function(p,v,pr){try{var pv=String(v==null?'':v),pp=pr||'';var m=W.get(this);if(m){var r=m[p];if(r&&r.v===pv&&r.pr===pp&&this.getPropertyValue(p)===r.norm&&this.getPropertyPriority(p)===pp)return;}else{m={};W.set(this,m);}
+    orig.call(this,p,v,pr);m[p]={v:pv,pr:pp,norm:this.getPropertyValue(p)};}catch(e){return orig.call(this,p,v,pr);}};
+  var td=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');if(td&&td.set&&td.get){Object.defineProperty(Node.prototype,'textContent',{configurable:true,enumerable:td.enumerable,get:td.get,set:function(v){try{var s=v==null?'':String(v);if(this.nodeType===1&&s.length<400&&this.childNodes.length===1&&this.firstChild.nodeType===3&&this.firstChild.data===s)return;}catch(e){}td.set.call(this,v);}});}
+  var d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');
+  if(d&&d.set&&d.get){Object.defineProperty(Element.prototype,'innerHTML',{configurable:true,enumerable:d.enumerable,get:d.get,set:function(h){try{var s=String(h);if(s.length<8000&&this.childNodes.length&&this.childNodes.length<200){if(this.__lastHTML===s&&d.get.call(this)===this.__lastNorm)return;}d.set.call(this,s);this.__lastHTML=s;this.__lastNorm=s.length<8000?d.get.call(this):null;}catch(e){d.set.call(this,h);}}});}
+})();
+</script>
+<style id="perez-v161-guide-css">
+/* V161 — מדריך שלבים: הסבר ליועץ + הסבר ללקוח לכל שלב, מילון טפסים, שליחה ללקוח */
+#pg{position:fixed;inset:0;z-index:2147482600;background:rgba(20,14,50,.45);backdrop-filter:blur(3px);display:none;align-items:stretch;justify-content:center;padding:18px;direction:rtl;font-family:Assistant,Heebo,-apple-system,"SF Hebrew",sans-serif}
+#pg.show{display:flex}
+#pg .bx{flex:1;max-width:1180px;background:#F4F5FA;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px -30px rgba(20,14,50,.65)}
+#pg .hd{flex:none;background:linear-gradient(135deg,#1A1140,#2E2060 55%,#4C2E9E);color:#fff;padding:14px 18px 0;border-bottom:3px solid #E4C568}
+#pg .r1{display:flex;align-items:center;gap:12px}
+#pg .ic{width:42px;height:42px;border-radius:12px;background:linear-gradient(145deg,#F5D98B,#C9A646);color:#3A2E08;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+#pg .r1 b{display:block;font:800 18px Heebo,sans-serif}
+#pg .r1 span{font:600 12px Assistant,sans-serif;color:#C9C2E6}
+#pg .x{margin-inline-start:auto;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:#fff;cursor:pointer}
+#pg .tl{display:flex;gap:4px;margin-top:12px;overflow-x:auto;padding-bottom:0}
+#pg .st{flex:1 0 auto;min-width:104px;border:0;background:rgba(255,255,255,.06);color:#D8D2F0;border-radius:12px 12px 0 0;padding:9px 10px;cursor:pointer;text-align:right;font:700 12px Assistant,sans-serif;position:relative}
+#pg .st i{display:block;font-style:normal;font:800 10.5px Heebo,sans-serif;color:#E4C568;opacity:.8}
+#pg .st.on{background:#F4F5FA;color:#1B1240}
+#pg .st.cur::after{content:"הלקוח כאן";position:absolute;top:6px;left:8px;font:800 9.5px Heebo,sans-serif;background:#E4C568;color:#3A2E08;border-radius:999px;padding:1px 6px}
+#pg .bd{flex:1;overflow:auto;padding:18px 20px 24px}
+#pg .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;align-items:start}
+#pg .cd{background:#fff;border:1px solid #E3E7EF;border-radius:16px;padding:16px;margin-bottom:12px}
+#pg .cd h3{margin:0 0 8px;font:800 15px Heebo,sans-serif;color:#241751;display:flex;align-items:center;gap:8px}
+#pg .cd h3 small{margin-inline-start:auto;font:700 11px Assistant,sans-serif;color:#8B6A2E;background:#FBF4E2;border-radius:999px;padding:2px 9px}
+#pg .lead{font:800 21px Heebo,sans-serif;color:#1B1240;margin:0 0 4px}
+#pg .sub{font:600 13px Assistant,sans-serif;color:#64748B;margin-bottom:14px}
+#pg ul.ck{list-style:none;margin:0;padding:0}
+#pg ul.ck li{display:flex;gap:9px;align-items:flex-start;font:600 13.5px/1.55 Assistant,sans-serif;color:#1E293B;padding:6px 0;border-bottom:1px dashed #EEF1F6}
+#pg ul.ck li:last-child{border:0}
+#pg ul.ck li::before{content:"";flex:none;width:18px;height:18px;border-radius:6px;border:2px solid #CFC4F1;margin-top:1px}
+#pg .cl{background:linear-gradient(180deg,#FAFAFE,#fff);border:1px solid #E2DBF7}
+#pg .ctext{font:500 14.5px/1.85 Assistant,sans-serif;color:#1E293B;white-space:pre-wrap}
+#pg .need li{font-weight:700}
+#pg .frm{border:1px solid #E3E7EF;border-radius:14px;margin-bottom:8px;overflow:hidden;background:#fff}
+#pg .frm > button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:#fff;padding:12px 14px;cursor:pointer;text-align:right}
+#pg .frm > button b{font:800 14px Heebo,sans-serif;color:#1B1240;flex:1}
+#pg .frm > button em{font-style:normal;font:700 11px Assistant,sans-serif;color:#4C2E9E;background:#F1EEFB;border-radius:999px;padding:2px 9px;white-space:nowrap}
+#pg .frm > button i{font-style:normal;color:#94A3B8;transition:transform .2s}
+#pg .frm.open > button i{transform:rotate(180deg)}
+#pg .frm .fb{display:none;padding:0 14px 14px;font:500 13.5px/1.7 Assistant,sans-serif;color:#334155}
+#pg .frm.open .fb{display:block}
+#pg .fb .kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;margin:6px 0 10px}
+#pg .fb .kv span{font:700 12px Assistant,sans-serif;color:#64748B}
+#pg .fb .kv div{font:600 13px Assistant,sans-serif;color:#1E293B}
+#pg .fb .say{background:#F0FDF4;border:1px solid #BFE3CD;border-radius:10px;padding:9px 12px;font:600 13.5px/1.6 Assistant,sans-serif;color:#14532D}
+#pg .fb .say b{display:block;font:800 11px Heebo,sans-serif;color:#15803D;margin-bottom:2px}
+#pg .faq details{border-bottom:1px solid #EEF1F6;padding:8px 0}
+#pg .faq summary{cursor:pointer;font:700 13.5px Assistant,sans-serif;color:#241751;list-style:none}
+#pg .faq summary::before{content:"❓ "}
+#pg .faq p{margin:6px 0 0;font:500 13.5px/1.7 Assistant,sans-serif;color:#334155}
+#pg .tip{background:#FFFBEB;border:1px solid #FDE3B3;border-radius:12px;padding:10px 12px;font:600 13px/1.6 Assistant,sans-serif;color:#92400E;margin-top:8px}
+#pg .ft{flex:none;display:flex;gap:8px;align-items:center;padding:12px 18px;background:#fff;border-top:1px solid #E3E7EF;flex-wrap:wrap}
+#pg .ft .who{font:700 12.5px Assistant,sans-serif;color:#475569}
+#pg .ft .sp{flex:1}
+#pg .b{border:0;border-radius:11px;padding:10px 15px;font:800 13.5px Heebo,sans-serif;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+#pg .b.wa{background:#16A34A;color:#fff}
+#pg .b.pdf{background:linear-gradient(165deg,#2E2060,#1A1140);color:#fff}
+#pg .b.l{background:#fff;color:#241751;border:1px solid #E3E7EF}
+#pg .b:disabled{opacity:.45;cursor:default}
+.pg-open{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:10px;padding:0 13px;height:36px;font:800 13px Heebo,sans-serif;cursor:pointer;background:linear-gradient(135deg,#F5D98B,#C9A646);color:#3A2E08;white-space:nowrap}
+@media (max-width:860px){#pg{padding:0}#pg .bx{border-radius:0}#pg .grid{grid-template-columns:1fr}#pg .bd{padding:14px}#pg .st{min-width:92px}#pg .ft .who{display:none}#pg .ft [data-a=prev],#pg .ft [data-a=next]{display:none}#pg .b{flex:1;justify-content:center;font-size:13px;padding:11px 8px}}
+@media print{body > *:not(#pg-print){display:none !important}#pg-print{display:block !important}}
+#pg-print{display:none;direction:rtl;font-family:Assistant,Heebo,sans-serif;color:#1E293B}
+#pg-print .lh{display:flex;align-items:center;gap:12px;border-bottom:2px solid #E4C568;padding-bottom:10px;margin-bottom:16px}
+#pg-print .lg{width:44px;height:44px;border-radius:12px;background:#2E2060;color:#E4C568;display:flex;align-items:center;justify-content:center;font:800 18px Heebo}
+#pg-print h1{font:800 22px Heebo;margin:0 0 6px;color:#1B1240}
+#pg-print h2{font:800 15px Heebo;color:#8B6A2E;margin:16px 0 6px}
+#pg-print p,#pg-print li{font:500 13.5px/1.8 Assistant}
+
+#pg .tabs2{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+#pg .tb2{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#E5DEFF;border-radius:999px;padding:7px 14px;font:700 13px Assistant,sans-serif;cursor:pointer}
+#pg .tb2.on{background:#F5D98B;color:#3A2E08;border-color:#F5D98B}
+#pg .hd > .tabs2:last-child{margin-bottom:12px}
+#pg .gcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#pg .gc{display:flex;flex-direction:column;gap:6px;text-align:right;background:#fff;border:1px solid #E3E7EF;border-radius:18px;padding:18px;cursor:pointer;transition:all .2s}
+#pg .gc:hover{border-color:#CFC4F1;transform:translateY(-2px);box-shadow:0 16px 30px -22px rgba(36,23,81,.5)}
+#pg .gc .gi{font-size:28px}
+#pg .gc b{font:800 16px Heebo,sans-serif;color:#1B1240}
+#pg .gc span{font:600 13px Assistant,sans-serif;color:#64748B}
+#pg .gc em{font-style:normal;font:800 12.5px Heebo,sans-serif;color:#4C2E9E;margin-top:4px}
+#pg .back{border:0;background:none;color:#4C2E9E;font:800 13px Heebo,sans-serif;cursor:pointer;padding:0 0 8px}
+#pg .trks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#pg .trk{background:#fff;border:1px solid #E3E7EF;border-radius:16px;padding:16px;border-top:4px solid var(--c)}
+#pg .trk .th{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#pg .trk .th b{font:800 16px Heebo,sans-serif;color:#1B1240;flex:1}
+#pg .trk .th em{font-style:normal;font:800 11px Heebo,sans-serif;color:var(--c);border:1px solid var(--c);border-radius:999px;padding:2px 9px}
+#pg .trk .tb{font:700 13px Assistant,sans-serif;color:#334155;margin-bottom:6px}
+#pg .trk .tb span{color:#64748B}
+#pg .trk .tp{font:500 13.5px/1.7 Assistant,sans-serif;color:#1E293B;background:#F7F8FB;border-radius:10px;padding:9px 11px;margin-bottom:10px}
+#pg .trk .pc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#pg .trk h5{margin:0 0 4px;font:800 12.5px Heebo,sans-serif;color:#15803D}
+#pg .trk .pc > div + div h5{color:#B42318}
+#pg .trk .pc p{margin:0;font:600 12.5px/1.6 Assistant,sans-serif;color:#334155}
+#pg .trk .fit{margin-top:10px;font:700 12.5px Assistant,sans-serif;color:#3B2585;background:#F1EEFB;border-radius:10px;padding:8px 10px}
+#pg .flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#fff;border:1px solid #E3E7EF;border-radius:14px;padding:12px;margin-bottom:12px}
+#pg .flow span{font:700 12px Assistant,sans-serif;background:#F1EEFB;color:#3B2585;border-radius:999px;padding:4px 10px}
+#pg .flow i{font-style:normal;color:#C9A646;font-weight:800}
+#pg .steps2{background:#fff;border:1px solid #E3E7EF;border-radius:16px;padding:6px 16px}
+#pg .sp2{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed #EEF1F6;position:relative}
+#pg .sp2:last-child{border:0}
+#pg .sp2 .n{flex:none;width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#4C2E9E,#241751);color:#F5D98B;display:flex;align-items:center;justify-content:center;font:800 13px Heebo,sans-serif}
+#pg .sp2 b{display:block;font:800 14.5px Heebo,sans-serif;color:#1B1240}
+#pg .sp2 p{margin:3px 0 0;font:500 13.5px/1.7 Assistant,sans-serif;color:#334155}
+#pg .disc{margin-top:12px;font:600 12px Assistant,sans-serif;color:#94A3B8}
+#pg .chs{display:flex;flex-wrap:wrap;gap:8px}
+#pg .ch{border:1.5px solid #E3E7EF;background:#fff;border-radius:12px;padding:10px 14px;font:700 13.5px Assistant,sans-serif;color:#334155;cursor:pointer}
+#pg .ch.on{background:#241751;border-color:#241751;color:#fff}
+#pg .rg h4{margin:10px 0 4px;font:800 13px Heebo,sans-serif;color:#8B6A2E}
+#pg .ri{font:600 14px/1.9 Assistant,sans-serif;color:#1E293B}
+#pg .pwrap{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+#pg .phone{width:320px;height:620px;border-radius:44px;background:#111;padding:12px;box-shadow:0 30px 60px -20px rgba(20,14,50,.55);position:relative;flex:none}
+#pg .pnotch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:110px;height:24px;background:#111;border-radius:0 0 16px 16px;z-index:2}
+#pg .pscr{height:100%;border-radius:34px;background:#F4F5FA;overflow:auto;padding:34px 14px 14px}
+#pg .ph{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#pg .pl{width:36px;height:36px;border-radius:10px;background:linear-gradient(145deg,#4C2E9E,#241751);color:#E4C568;display:flex;align-items:center;justify-content:center;font:800 15px Heebo}
+#pg .ph b{display:block;font:800 14px Heebo;color:#1B1240}
+#pg .ph span{font:600 11px Assistant;color:#64748B}
+#pg .phi{font:800 20px Heebo;color:#1B1240;margin-bottom:10px}
+#pg .ppc,#pg .pcd{background:#fff;border:1px solid #E3E7EF;border-radius:16px;padding:12px;margin-bottom:10px}
+#pg .ppl{display:flex;justify-content:space-between;font:700 12px Assistant;color:#64748B;margin-bottom:6px}
+#pg .ppl b{font-family:Heebo;color:#1B1240}
+#pg .pbar{height:8px;border-radius:999px;background:#EEF1F6;overflow:hidden}
+#pg .pbar i{display:block;height:100%;background:linear-gradient(90deg,#6D4FC2,#E4C568)}
+#pg .pst{margin-top:8px;font:700 12.5px Assistant;color:#3B2585}
+#pg .pcd h6{margin:0 0 8px;font:800 13px Heebo;color:#241751}
+#pg .pup{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed #EEF1F6;font:600 12px Assistant;color:#334155}
+#pg .pup span{flex:1}
+#pg .pup button{border:0;border-radius:8px;padding:5px 9px;font:700 11px Assistant;background:#241751;color:#fff}
+#pg .pg2{font:700 12.5px Assistant;color:#334155;padding:6px 0;border-bottom:1px dashed #EEF1F6}
+#pg .pwa{width:100%;border:0;border-radius:12px;padding:11px;font:800 13px Heebo;background:#16A34A;color:#fff}
+#pg .pnote{max-width:380px;background:#fff;border:1px solid #E3E7EF;border-radius:16px;padding:16px}
+#pg .pnote h3{margin:0 0 8px;font:800 15px Heebo;color:#241751}
+#pg .pnote p{margin:4px 0;font:600 13.5px/1.7 Assistant;color:#334155}
+@media (max-width:860px){#pg .gcards,#pg .trks,#pg .trk .pc{grid-template-columns:1fr}}
+</style>
+<script id="perez-v161-guide-js">
+/* V161 — מדריך שלבים לייעוץ משכנתאות */
+(function(){
+var F={
+ hasmacha:{t:'כתב הסמכה',what:'מסמך שבו הלקוח מסמיך את הבנק לבדוק את המידע הפיננסי שלו ולטפל בבקשה.',why:'בלי ההסמכה הבנק לא יכול להתחיל לבדוק את התיק.',who:'הלקוח (כל הלווים)',where:'אצל היועץ / בבנק',copies:'לפי דרישת הבנק',say:'זה האישור שמאפשר לבנק להתחיל לעבוד על הבקשה שלך.'},
+ nesach:{t:'נסח טאבו / אישור זכויות',what:'מסמך רשמי שמראה מי הבעלים של הדירה והאם יש עליה משכנתאות, עיקולים או הערות.',why:'הבנק חייב לדעת שהדירה נקייה לפני שהוא מלווה עליה.',who:'מתקבל מהמוכר / מהטאבו, רמ"י או החברה המשכנת',where:'הזמנה מקוונת או דרך עו"ד',copies:'עדכני (בדרך כלל עד חודש)',say:'בדיקה שהדירה באמת של המוכר ושאין עליה "הפתעות".'},
+ hoze:{t:'חוזה רכישה',what:'החוזה בין הקונה למוכר או לקבלן.',why:'ממנו הבנק לומד את המחיר, לוח התשלומים ופרטי הדירה.',who:'נחתם בין הקונה למוכר',where:'אצל עורכי הדין',copies:'עותק חתום',say:'הבנק צריך לראות את העסקה כדי לדעת על מה הוא מלווה.'},
+ shmaut:{t:'דוח שמאי',what:'שמאי מטעם הבנק בודק את הדירה וקובע את שוויה.',why:'הבנק מלווה לפי השווי שהשמאי קבע, לא רק לפי המחיר בחוזה.',who:'שמאי מרשימת הבנק, בתשלום הלקוח',where:'ביקור בדירה / לפי תוכניות בדירה חדשה',copies:'נשלח ישירות לבנק',say:'בדיקת שווי של הדירה. אם השווי נמוך מהמחיר — זה משפיע על גובה המשכנתא.'},
+ bituah_haim:{t:'ביטוח חיים',what:'ביטוח שמכסה את יתרת המשכנתא אם קורה חלילה משהו ללווה.',why:'תנאי של הבנק. הפוליסה משועבדת לבנק.',who:'כל הלווים',where:'בחברת ביטוח או דרך הבנק',copies:'פוליסה + אישור שעבוד לבנק',say:'הגנה על המשפחה — המשכנתא משולמת ולא נשארת כחוב.'},
+ bituah_mivne:{t:'ביטוח מבנה',what:'ביטוח לדירה עצמה מפני נזקים כמו שריפה או רעידת אדמה.',why:'תנאי של הבנק — הדירה היא הביטחון שלו.',who:'הלווים',where:'בחברת ביטוח או דרך הבנק',copies:'פוליסה + שעבוד לבנק',say:'אם קורה נזק לדירה — יש כסף לתקן אותה.'},
+ shtar:{t:'שטר משכנתא',what:'המסמך שנרשם בטאבו ואומר שעל הדירה רשומה משכנתא לטובת הבנק.',why:'זה הביטחון העיקרי של הבנק בדירה רשומה.',who:'הלווים (ובעלי הזכויות)',where:'בבנק / מול עו"ד',copies:'מקור',say:'הרישום הרשמי שהבנק מחזיק משכנתא על הדירה עד הסוף.'},
+ hitchayvut:{t:'כתב התחייבות (חברה)',what:'הקבלן מתחייב לבנק שהדירה נקייה, שירשום את המשכנתא כשהדירה תירשם על שם הלקוח, ושלא יבטל את החוזה בלי אישור הבנק. אם החוזה מבוטל — הוא מחזיר לבנק את הכסף.',why:'הדירה עוד לא רשומה בטאבו, אז זה מחליף בינתיים את המשכנתא הרשומה.',who:'הקבלן',where:'מול עו"ד',copies:'בדרך כלל כמה עותקים מקוריים — לפי מה שהבנק ביקש',say:'הקבלן מבטיח לבנק שהדירה שלך תהיה הביטחון של המשכנתא, גם לפני שהיא רשומה בטאבו.'},
+ azhara:{t:'בקשה לרישום הערת אזהרה',what:'טופס לטאבו שרושם "הערה" על הדירה לטובת הבנק.',why:'כדי שאף אחד לא יוכל למכור או לשעבד את הדירה מאחורי גבו של הבנק.',who:'הקבלן (בעל הזכות) ונציג הבנק',where:'מול עו"ד',copies:'מקור',say:'סימון רשמי בטאבו שהבנק נמצא בתמונה.'},
+ ishur_tashlum:{t:'אישור פרטי חשבון ואישור תשלום',what:'הקבלן מאשר כמה הלקוח כבר שילם, ולאיזה חשבון (חשבון הליווי של הפרויקט) להעביר את כספי המשכנתא.',why:'כדי שהכסף יגיע לחשבון הנכון ומוגן.',who:'הקבלן',where:'מול עו"ד',copies:'מקור',say:'כדי שהכסף יגיע למקום הנכון ולא ילך לאיבוד.'},
+ hasava:{t:'הסבת ערבות חוק המכר',what:'כל תשלום לקבלן מוגן בערבות בנקאית לפי חוק המכר. הטופס מעביר את הערבות לבנק שנותן את המשכנתא.',why:'אם הקבלן נכשל — כסף הערבות הולך קודם לכיסוי המשכנתא.',who:'הלקוח, ואחר כך הבנק המלווה של הפרויקט',where:'הלקוח חותם; הבנק המלווה מאשר בסניף מורשה עם חותמת',copies:'מקור מאומת',say:'ביטוח למקרה שהקבלן נופל — הכסף מגיע קודם לבנק, ואתה לא נשאר עם חוב בלי דירה.'},
+ mash:{t:'מש"ח (דיווח לרשות המסים)',what:'הדיווח על העסקה לרשות המסים (מס רכישה / מס שבח).',why:'הבנק רוצה לראות שהעסקה דווחה כחוק.',who:'מוגש על ידי עורכי הדין של העסקה / הקבלן',where:'רשות המסים',copies:'עותק',say:'הוכחה שהעסקה דווחה למס — עורך הדין או הקבלן יכולים לתת אותו.'}
+};
+var S=[
+ {t:'ליד ראשוני',ic:'👋',sub:'היכרות ובדיקת היתכנות',adv:['להבין מטרה: דירה ראשונה / משפרים / השקעה / מחזור','לברר הון עצמי, הכנסות נטו והתחייבויות קיימות','לברר מצב הנכס: יד שנייה, קבלן, טרם נמצא','להסביר בקצרה איך התהליך עובד ומה הצעד הבא','לקבוע פגישת אפיון ולשלוח שאלון'],
+  cl:'נעים להכיר 😊\nבשיחה הראשונה נבין מה אתם מתכננים, כמה הון עצמי יש, ומה ההכנסות — כדי לדעת מראש מה אפשרי.\nאחרי זה נקבע פגישה מסודרת ואשלח שאלון קצר.',need:['לחשוב על תקציב ההון העצמי','לרכז מספר בערך של ההכנסות החודשיות'],forms:[],faq:[['כמה משכנתא אפשר לקבל?','זה תלוי בשווי הדירה, בהון העצמי ובהכנסות. בשיחה הראשונה אנחנו עושים הערכה ראשונית.'],['למה צריך יועץ?','היועץ בונה תמהיל שמתאים לכם, מנהל משא ומתן מול כמה בנקים במקביל ומלווה עד ביצוע.']],tip:'לשאול כבר בשיחה הראשונה אם יש הלוואות או חריגות בעו"ש — זה חוסך הפתעות בהמשך.'},
+ {t:'שיחה ראשונה',ic:'📋',sub:'אפיון, שאלון והסכם ליווי',adv:['למלא יחד את שאלון המשכנתא (אשף)','לחתום על הסכם הליווי ושכר הטרחה','להסביר את מסלולי המשכנתא (קבועה, פריים, משתנה, צמודה)','להגדיר יעד החזר חודשי','לשלוח ללקוח רשימת מסמכים מסודרת'],
+  cl:'בשלב הזה ממלאים שאלון קצר ומכירים את התמונה המלאה.\nנחתום על הסכם ליווי, ואני אשלח לך רשימה מסודרת של המסמכים שצריך.\nמצרף גם מדריך קצר על מסלולי המשכנתא — כדי שתבין על מה מדברים.',need:['למלא את השאלון','לחתום על הסכם הליווי'],forms:[],faq:[['מה ההבדל בין המסלולים?','קבועה = החזר יציב; פריים = זז עם ריבית בנק ישראל וגמיש לפירעון; משתנה = ננעל לתקופות; צמודה = הקרן זזה עם המדד. התמהיל משלב ביניהם.'],['כמה זמן לוקח כל התהליך?','תלוי בעסקה ובבנקים, בדרך כלל כמה שבועות מהגשה ועד ביצוע.']],tip:'לשלוח את מדריך המסלולים מיד אחרי השיחה — לקוח שמבין, מחליט מהר יותר.'},
+ {t:'איסוף מסמכים',ic:'📂',sub:'כל מה שהבנק צריך לאישור עקרוני',adv:['ת"ז + ספח של כל הלווים','שכירים: 3 תלושים אחרונים (+106 אם צריך)','עצמאים: דוח רו"ח שנה נוכחית + שומה שנה קודמת','הכנסות נוספות: קצבה, שכירות, עבודה נוספת','עו"ש 3 חודשים מכל החשבונות + ריכוז יתרות','ריכוז הלוואות (אם יש)','יד שנייה: נסח טאבו / אישור זכויות; מקבלן: חוזה רכישה','כתב הסמכה של הבנק'],
+  cl:'כדי שהבנקים יוכלו לבדוק ולתת הצעות, צריך כמה מסמכים.\nאפשר לצלם בטלפון ולשלוח — העיקר שיהיה ברור וקריא.\nכל מה שתשלח נשאר אצלי ומשמש רק לבקשת המשכנתא.',need:['ת"ז + ספח','3 תלושים / דוח רו"ח','עו"ש 3 חודשים','נסח טאבו או חוזה רכישה'],forms:['hasmacha','nesach','hoze'],faq:[['למה צריך עו"ש?','הבנק בודק התנהלות: הכנסות קבועות, הלוואות וחריגות.'],['למה תלושים ולא רק משכורת?','התלוש מראה ותק, סוג משרה ותשלומים קבועים — חשוב לבנק.']],tip:'לבדוק סתירות בין השאלון למסמכים לפני ההגשה (בעוזר החכם — "בדיקת סתירות").'},
+ {t:'הגשה לבנקים',ic:'🏦',sub:'מכתב הגשה והגשה לכמה בנקים',adv:['לכתוב מכתב הגשה מורחב: חוזקות, הסבר על חולשות','להגיש לפחות ל-3 בנקים','לעקוב אחרי תשובות ולענות לשאלות הבנקים','לעדכן את הלקוח על ההתקדמות'],
+  cl:'הגשתי את הבקשה לכמה בנקים, כדי שיתחרו עליכם.\nייתכן שבנק יתקשר אליך לאימות פרטים — זה רגיל.\nאני מעדכן ברגע שיש תשובות.',need:['להיות זמין לטלפון מהבנקים'],forms:['hasmacha'],faq:[['למה לכמה בנקים?','תחרות = ריביות טובות יותר. כל בנק מתמחר אחרת.'],['זה פוגע בדירוג האשראי?','בקשות משכנתא בתקופה קצרה נבחנות כחלק מאותו תהליך — אין סיבה לדאגה.']],tip:'להכין את המכתב כך שיענה מראש על השאלה הראשונה שהבנק ישאל.'},
+ {t:'אישור עקרוני',ic:'✅',sub:'הבנקים אישרו — משווים הצעות',adv:['לרכז את כל האישורים העקרוניים','להשוות עלות כוללת והחזר ראשון (השוואת הצעות)','לנהל משא ומתן — להראות לבנק הצעה טובה יותר','לבדוק תוקף האישור'],
+  cl:'קיבלנו אישור עקרוני 🎉\nזה אומר שהבנק מוכן לתת את המשכנתא, בכפוף לבדיקות הסופיות.\nעכשיו אני משווה בין ההצעות ומנהל משא ומתן כדי להשיג תנאים טובים יותר.',need:['להמשיך לשמור על התנהלות תקינה בחשבון'],forms:[],faq:[['אישור עקרוני זה סופי?','עוד לא — זה אישור בכפוף לשמאות, ביטוחים ומסמכים סופיים.'],['יש לאישור תוקף?','כן, לאישור יש תוקף מוגבל — לכן כדאי להתקדם בזמן.']],tip:'לא לחכות עם המשא ומתן — לפנות לכל בנק עם ההצעה הטובה ביותר שיש.'},
+ {t:'בחירת בנק',ic:'🎯',sub:'בחירת בנק ותמהיל סופי',adv:['להציג ללקוח 2-3 תמהילים עם הסבר (בנאי + "הצג ללקוח")','להסביר החזר ראשון, החזר בשיא ותרחישים','לבחור בנק ולשמור תמהיל נבחר בתיק','לתאם עם הלקוח את שלב החתימות'],
+  cl:'בניתי לכם תמהיל שמאזן בין יציבות לעלות.\nאני אראה לך כמה ההחזר בהתחלה, מה קורה אם הריבית עולה, וכמה המשכנתא עולה בסך הכל.\nאחרי שנחליט — עוברים לחתימות.',need:['לאשר את התמהיל והבנק'],forms:[],faq:[['למה לא הכל בקבועה?','קבועה נותנת ודאות אבל יקרה יותר. שילוב מסלולים מוריד עלות ומשאיר יציבות.'],['אפשר לשנות בעתיד?','כן — אפשר למחזר בהמשך, בכפוף לעמלות ולתנאי השוק.']],tip:'לשלוח ללקוח את ההסבר מהבנאי במצב "הצג ללקוח" — זה מייצר אמון.'},
+ {t:'חתימות',ic:'✍️',sub:'שמאות, ביטוחים, ביטחונות וחתימה בבנק',adv:['להזמין שמאות מרשימת הבנק','לסדר ביטוח חיים + ביטוח מבנה עם שעבוד לבנק','יד שנייה: נסח טאבו עדכני, שטר משכנתא','מקבלן: ביטחונות מהקבלן — כתב התחייבות, הערת אזהרה, אישור תשלום, הסבת ערבות חוק המכר','לבדוק את חוזה ההלוואה מול מה שסוכם (בדיקת חוזה)','לתאם פגישת חתימות בבנק'],
+  cl:'זה השלב האחרון לפני קבלת הכסף.\nצריך שמאות לדירה, ביטוח חיים וביטוח מבנה, וכמה טפסים שמבטיחים את הבנק.\nבדירה מקבלן — חלק מהטפסים נחתמים על ידי הקבלן ועורך הדין שלו, ואני מתאם את זה.\nאני אסביר לך כל טופס לפני שאתה חותם.',need:['לקבוע ביקור שמאי','להוציא ביטוח חיים וביטוח מבנה','לחתום על הסבת ערבות חוק המכר (בדירה מקבלן)','להגיע לחתימה בבנק'],forms:['shmaut','bituah_haim','bituah_mivne','shtar','hitchayvut','azhara','ishur_tashlum','hasava','mash'],faq:[['למה הקבלן צריך לחתום?','הדירה עוד לא רשומה בטאבו. הקבלן מבטיח לבנק שהמשכנתא תירשם כשהדירה תירשם.'],['מה זה הסבת ערבות?','הגנה למקרה שהקבלן נכשל — כסף הערבות הולך קודם לכיסוי המשכנתא.'],['למה צריך ביטוח חיים?','תנאי של הבנק, ובעיקר הגנה על המשפחה.']],tip:'מסמכים מקוריים: לבדוק מה הבנק ביקש במקור ובכמה עותקים, ולסמן כשהמקור חזר.'},
+ {t:'ביצוע',ic:'🏡',sub:'העברת הכסף וסגירת התיק',adv:['לוודא שכל התנאים להעמדת ההלוואה מולאו','לוודא העברה לחשבון הנכון (מוכר / חשבון ליווי)','לעדכן את הלקוח על מועד התשלום הראשון','לסגור שכר טרחה','לקבוע תזכורת לבדיקת מחזור בהמשך'],
+  cl:'מזל טוב! 🏡 הכסף הועבר והמשכנתא בביצוע.\nהתשלום הראשון יירד מהחשבון במועד שנקבע בבנק.\nכדאי לשמור את כל המסמכים במקום אחד. ואני כאן גם בהמשך — כולל בדיקת מחזור כשהתנאים בשוק משתנים.',need:['לשמור את המסמכים','לוודא שיש כסף בחשבון ביום התשלום'],forms:[],faq:[['מתי התשלום הראשון?','לפי המועד שנקבע בבנק — בדרך כלל כחודש אחרי הביצוע.'],['אפשר למחזר בעתיד?','כן. אני עוקב ומעדכן כשיש הזדמנות.']],tip:'בקשת המלצה + תזכורת מחזור — הטייס האוטומטי עושה את זה לבד.'}
+];
+var STG=['ליד ראשוני','שיחה ראשונה','איסוף מסמכים','הגשה לבנקים','אישור עקרוני','בחירת בנק','חתימות','ביצוע'];
+/* ===== V161 — מדריכים ללקוח, בקשת מסמכים חכמה, אזור הלקוח (תצוגה) ===== */
+var GUIDES=[
+ {id:'tracks',ic:'🧭',t:'מדריך מסלולי המשכנתא',d:'ממה בנוי כל מסלול, מה זה אומר בפועל, יתרונות וחסרונות',
+  intro:'משכנתא בישראל נבנית לרוב מתמהיל של כמה מסלולים. לכל מסלול "מנוע ריבית" שונה שקובע איך ההחזר יתנהג לאורך הזמן.',
+  tracks:[
+   {n:'קבועה לא צמודה (קל"צ)',tag:'הכי יציב',c:'#C29A2E',b:'ריבית קבועה שנקבעת ביום החתימה — ללא רכיב נוסף',p:'הריבית "ננעלת" ולא משתנה גם אם הריבית במשק עולה או יורדת. ההחזר בשנה הראשונה זהה להחזר בשנה ה-20.',pro:['ודאות מוחלטת בתכנון תקציב','לא מושפע מעליות ריבית עתידיות','לא מושפע ממדד המחירים'],con:['ריבית פתיחה גבוהה יחסית','אם הריבית יורדת — לא נהנים מכך','עמלת פירעון מוקדם עלולה להיות גבוהה'],fit:'מי שמעדיף ודאות מלאה, ולא מתכנן למחזר או לפרוע מוקדם.'},
+   {n:'פריים',tag:'הכי נפוץ',c:'#4C2E9E',b:'ריבית בנק ישראל + מרווח קבוע',p:'כשבנק ישראל מעדכן את הריבית, ריבית הפריים זזה איתה כמעט מיד. עלייה של 0.25% מעלה את ההחזר בהתאם, ולהפך.',pro:['ריבית פתיחה נמוכה יחסית','נהנים מיידית מירידות ריבית','לרוב אפשר לפרוע מוקדם בלי קנס'],con:['ההחזר יכול לעלות בכל עדכון','קשה לתכנן תקציב ארוך-טווח','חשוף למדיניות בנק ישראל'],fit:'מי שרוצה ריבית פתיחה נמוכה וגמישות, ומוכן לתנודתיות.'},
+   {n:'משתנה לא צמודה (מל"צ)',tag:'נקודות עדכון קבועות',c:'#2F5BD3',b:'ריבית שמתעדכנת בנקודות זמן קבועות מראש (למשל כל 5 שנים)',p:'הריבית נעולה לתקופה מוגדרת. בכל נקודת עדכון הבנק קובע ריבית חדשה לפי השוק, שנשארת קבועה לתקופה הבאה.',pro:['ודאות בין נקודת עדכון לעדכון','ריבית פתיחה נמוכה מקבועה','פחות תנודתי מפריים'],con:['אי-ודאות לגבי הריבית בעדכון הבא','עמלת פירעון מוקדם בתוך התקופה','קשה לחזות טווח ארוך'],fit:'מי שרוצה איזון בין יציבות לעלות.'},
+   {n:'צמודה למדד',tag:'חשיפה למדד',c:'#C2417A',b:'ריבית (קבועה או משתנה) + הצמדת הקרן למדד המחירים לצרכן',p:'מעבר לריבית, יתרת הקרן גדלה או קטנה לפי האינפלציה. אם המדד עלה 2% — הקרן גדלה בכ-2% וההחזר עולה בהתאם.',pro:['ריבית פתיחה נמוכה מהמקבילה הלא-צמודה','המדד יכול גם לרדת','מפזר סיכון בין ריבית למדד'],con:['הקרן עצמה יכולה לגדול','קשה לחזות אינפלציה עתידית','באינפלציה גבוהה — עלייה משמעותית בעלות'],fit:'מי שרוצה ריבית פתיחה נמוכה ומוכן לשאת בסיכון האינפלציה.'}]},
+ {id:'second',ic:'🏠',t:'עסקת יד שנייה עם משכנתא',d:'15 השלבים — מאישור עקרוני ועד רישום הזכויות',
+  intro:'סדר הפעולות המקובל כשקונים דירה יד שנייה בעזרת משכנתא. הסדר המדויק יכול להשתנות לפי הנכס, הבנק והסכם המכר.',
+  steps:[['אישור עקרוני למשכנתא','הבנק נותן אישור ראשוני. חשוב שיכיר את מבנה העסקה האמיתי — הרוכשים, הלווים והערבים. זה עדיין לא אישור סופי לשחרור הכסף.'],['בדיקות מקדימות לנכס','עורך הדין בודק נסח טאבו / אישור זכויות, שעבודים, עיקולים, משכנתאות קיימות וחריגות.'],['חתימת הסכם המכר','קובע תמורה, לוח תשלומים, מועד מסירה, רישום זכויות וסילוק משכנתא קיימת של המוכר.'],['תשלום ראשון / נאמנות','תשלום ראשון לפי ההסכם — לעיתים לחשבון נאמנות עד שהתנאים מתקיימים.'],['דיווח לרשות המסים','הקונה מטפל במס רכישה, המוכר במס שבח — ככל שחלים.'],['פתיחת תיק משכנתא','מעבירים לבנק את הסכם המכר והמסמכים, והבנק מתחיל בבדיקות הסופיות.'],['שמאות','שמאי קובע את שווי הנכס לבנק — זה יכול להשפיע על גובה המימון.'],['השלמת בדיקות הבנק','הבנק בודק את הלווים, הנכס, הזכויות וההסכם.'],['מסמכי ביטחונות','חתימה על מסמכי הבנק ורישום משכנתא או התחייבות לרישום משכנתא.'],['הערת אזהרה לטובת הקונה','במקרים המתאימים — לפי ההסכם ואופן רישום הנכס.'],['משכנתא של המוכר — מכתב כוונות','הבנק של המוכר מפרט כמה צריך לסילוק; חלק מהכסף עובר ישירות אליו.'],['אישור סופי והעמדת המשכנתא','אחרי כל המסמכים והביטחונות — הבנק מעביר את הכסף לפי ההוראות.'],['תשלום יתרת התמורה','הון עצמי + כספי משכנתא, לפי לוח התשלומים.'],['מסירת החזקה','מפתחות, קריאות מונים ומסמכים — במועד שבחוזה.'],['רישום הזכויות','עורך הדין משלים העברת זכויות ורישום משכנתא — בטאבו, רמ"י או חברה משכנת.']],
+  flow:'אישור עקרוני → בדיקות נכס → חוזה → תשלום/נאמנות → תיק משכנתא → שמאות → ביטחונות → אישור סופי → שחרור משכנתא → תשלום למוכר → מסירה → רישום'},
+ {id:'new',ic:'🏗️',t:'דירה מקבלן עם משכנתא',d:'15 השלבים — כולל ביטחונות ושחרור בפעימות',
+  intro:'בעסקה מקבלן המנגנון שונה מיד שנייה: יש ליווי בנקאי לפרויקט, ערבויות חוק מכר, והמשכנתא משתחררת לרוב בכמה פעימות.',
+  steps:[['בחירת דירה','בחינת מחיר, מפרט, הצמדות, מועד מסירה ותנאי תשלום.'],['אישור עקרוני למשכנתא','מומלץ לפני החתימה — לוודא שהמימון מתאים. אם יש ערב תומך, הבנק צריך לדעת.'],['בדיקה משפטית של הסכם הקבלן','עורך הדין בודק הסכם, נספחים, תשלומים, הצמדות, ערבויות, מסירה ורישום.'],['חתימה עם הקבלן','לוח תשלומים לפי ההסכם, לעיתים לפי שלבי בנייה.'],['תשלום ראשון','לרוב בשוברי תשלום של הליווי הבנקאי של הפרויקט.'],['קבלת ביטחונות','ערבות חוק מכר ובטוחות לפי הדין ומבנה הפרויקט.'],['פתיחת תיק המשכנתא','מעבירים לבנק את ההסכם והמסמכים.'],['בדיקת הפרויקט והבטוחה','הבנק בודק ליווי, רישום וביטחונות — כאן נכנסים טפסי הקבלן (כתב התחייבות, הערת אזהרה, אישור תשלום, הסבת ערבות).'],['שמאות','לפי דרישות הבנק; בנכס שטרם נבנה — לפי תוכניות ושווי צפוי.'],['שחרור בפעימות','המשכנתא משתחררת לפי לוח התשלומים ותנאי הבנק.'],['תשלומים במהלך הבנייה','לתאם מראש הון עצמי וכספי משכנתא כדי לא להיתקע במועד תשלום.'],['הצמדות ותזמון','לבדוק מראש הצמדות ועלויות ואת תזמון המשיכה.'],['התקדמות הבנייה','לוודא שהמימון עדיין מתאים ליתרת התשלומים.'],['קבלת הדירה','מסירה וקבלת חזקה לפי ההסכם.'],['רישום הזכויות','לפי שלב רישום הבית המשותף; המשכנתא נרשמת בהתאם.']],
+  flow:'אישור עקרוני → בדיקת הסכם → חתימה → תשלום ראשון → בטוחות → תיק משכנתא → בדיקות הבנק → שחרור בפעימות → תשלומים → בנייה → מסירה → רישום'},
+ {id:'notes',ic:'⚖️',t:'נקודות חשובות: תנאי משכנתא וערב תומך',d:'מה לבדוק לפני שחותמים',
+  intro:'שני מצבים שכדאי להכיר לפני החתימה.',
+  steps:[['תנאי לקבלת משכנתא בחוזה','אם רוצים שהעסקה תבוטל אם לא מתקבלת משכנתא — לנסח במדויק: הסכום, המועד, מה נחשב אי-קבלה, אישור חלקי, שמאות נמוכה ואיך מוחזרים כספי נאמנות. הסעיף לא מחליף את אישור הבנק.'],['ערב תומך','אם בן משפחה נכנס כערב תומך — הבנק צריך לדעת כבר באישור העקרוני. זה מקטין אי-ודאות, אבל עדיין יש בדיקות סופיות.']]}
+];
+var DOCREQ={
+ salaried:{t:'שכיר',base:['צילום ת"ז + ספח של שני בני הזוג','3 תלושים אחרונים של שני בני הזוג']},
+ self:{t:'עצמאי',base:['צילום ת"ז + ספח של שני בני הזוג','שומת מס של השנה הקודמת','אישור הכנסה מרואה חשבון לשנה הנוכחית']},
+ owner:{t:'עצמאי — בעל שליטה בחברה בע"מ',base:['צילום ת"ז + ספח של שני בני הזוג','מאזן מבוקר של השנה הקודמת','מאזן בוחן של השנה הנוכחית','שומת מס של השנה הקודמת','אישור הכנסה מרואה חשבון לשנה הנוכחית']},
+ sal_owner:{t:'שכיר בעל שליטה בחברה בע"מ',base:['צילום ת"ז + ספח של שני בני הזוג','3 תלושים אחרונים','טופס 106 של השנה הקודמת','מאזן מבוקר של השנה הקודמת','מאזן בוחן של השנה הנוכחית','שומת מס של השנה הקודמת','אישור הכנסה מרואה חשבון לשנה הנוכחית']}
+};
+var COMMON=['דפי עו"ש 3 חודשים אחרונים — מכל החשבונות בכל הבנקים','ריכוז יתרות','דף ריכוז הלוואות (אם יש)'];
+
+var st={i:0,cid:null,open:{},tab:'stages',g:null,rq:{type:'salaried',two:true,prop:'second',kollel:false,bl:false,extra:false}};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function cl(){return st.cid&&typeof DB!=='undefined'?(DB.clients||[]).find(function(c){return String(c.id)===String(st.cid);}):null;}
+function brand(){var s={};try{s=getSettings()||{};}catch(e){}return {co:s.company||'קבוצת המשכן',adv:s.name||'אילן פרץ'};}
+function wa(p,t){p=String(p||'').replace(/\D/g,'');if(p.charAt(0)==='0')p='972'+p.slice(1);return 'https://wa.me/'+p+'?text='+encodeURIComponent(t);}
+function formHTML(id){var f=F[id];if(!f)return '';var o=st.open[id];return '<div class="frm'+(o?' open':'')+'"><button data-f="'+id+'"><b>'+esc(f.t)+'</b><em>'+esc(f.who)+'</em><i>▾</i></button><div class="fb">'+esc(f.what)+'<div class="kv"><span>למה צריך</span><div>'+esc(f.why)+'</div><span>מי חותם</span><div>'+esc(f.who)+'</div><span>איפה</span><div>'+esc(f.where)+'</div><span>עותקים</span><div>'+esc(f.copies)+'</div></div><div class="say"><b>מה להגיד ללקוח</b>'+esc(f.say)+'</div></div></div>';}
+function renderStages(){var w=document.getElementById('pg');var s=S[st.i];var c=cl();var cur=c?STG.indexOf(c.stage):-1;
+ var tl=S.map(function(x,k){return '<button class="st'+(k===st.i?' on':'')+(k===cur?' cur':'')+'" data-s="'+k+'"><i>שלב '+(k+1)+'</i>'+x.ic+' '+esc(x.t)+'</button>';}).join('');
+ var h='<div class="bx">'+head(c,'<div class="tl">'+tl+'</div>')
+  +'<div class="bd"><div class="lead">'+s.ic+' שלב '+(st.i+1)+' · '+esc(s.t)+'</div><div class="sub">'+esc(s.sub)+'</div><div class="grid"><div>'
+  +'<div class="cd"><h3>מה אתה עושה בשלב הזה <small>ליועץ</small></h3><ul class="ck">'+s.adv.map(function(a){return '<li>'+esc(a)+'</li>';}).join('')+'</ul>'+(s.tip?'<div class="tip">💡 '+esc(s.tip)+'</div>':'')+'</div>'
+  +(s.forms.length?'<div class="cd"><h3>הטפסים בשלב — מה כל אחד אומר <small>'+s.forms.length+' טפסים</small></h3>'+s.forms.map(formHTML).join('')+'</div>':'')
+  +'</div><div><div class="cd cl"><h3>ההסבר ללקוח <small>נשלח כמו שהוא</small></h3><div class="ctext">'+esc(s.cl)+'</div></div>'
+  +'<div class="cd"><h3>מה צריך מהלקוח</h3><ul class="ck need">'+s.need.map(function(a){return '<li>'+esc(a)+'</li>';}).join('')+'</ul></div>'
+  +'<div class="cd faq"><h3>שאלות שלקוחות שואלים</h3>'+s.faq.map(function(q){return '<details><summary>'+esc(q[0])+'</summary><p>'+esc(q[1])+'</p></details>';}).join('')+'</div></div></div></div>'
+  +'<div class="ft"><span class="who">'+(c?'נשלח ל'+esc(c.fn||'')+' · '+esc(c.phone||''):'בחר לקוח פעיל כדי לשלוח')+'</span><span class="sp"></span><button class="b l" data-a="prev" '+(st.i?'':'disabled')+'>→ שלב קודם</button><button class="b l" data-a="next" '+(st.i<S.length-1?'':'disabled')+'>שלב הבא ←</button><button class="b pdf" data-a="pdf">📄 מדריך ללקוח (PDF)</button><button class="b wa" data-a="wa" '+(c&&c.phone?'':'disabled')+'>שלח ללקוח בוואטסאפ</button></div></div>';
+ w.innerHTML=h;var on=w.querySelector('.st.on');if(on&&on.scrollIntoView)try{on.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}
+
+function head(c,extra){var T=[['stages','📘 שלבי התהליך'],['guides','📚 מדריכים ללקוח'],['req','📨 בקשת מסמכים'],['portal','📱 אזור הלקוח']];
+ return '<div class="hd"><div class="r1"><span class="ic">📘</span><div><b>מרכז ההסברים'+(c?' · '+esc((c.fn||'')+' '+(c.ln||'')):'')+'</b><span>כל שלב, כל טופס וכל מדריך — מוכן לשליחה ללקוח</span></div><button class="x" data-a="close">✕</button></div><div class="tabs2">'+T.map(function(t){return '<button class="tb2'+(st.tab===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>'+(extra||'')+'</div>';}
+function foot(inner){var c=cl();return '<div class="ft"><span class="who">'+(c?'נשלח ל'+esc(c.fn||'')+' · '+esc(c.phone||''):'בחר לקוח פעיל כדי לשלוח')+'</span><span class="sp"></span>'+inner+'</div>';}
+function render(){if(st.tab==='stages')return renderStages();var w=document.getElementById('pg');var c=cl();var body='',ft='';
+ if(st.tab==='guides'){var G=GUIDES.find(function(x){return x.id===st.g;});
+  if(!G){body='<div class="lead">📚 מדריכים ללקוח</div><div class="sub">מדריכים מלאים שאפשר לשלוח ללקוח בוואטסאפ או כ-PDF ממותג</div><div class="gcards">'+GUIDES.map(function(x){return '<button class="gc" data-g="'+x.id+'"><span class="gi">'+x.ic+'</span><b>'+esc(x.t)+'</b><span>'+esc(x.d)+'</span><em>פתח מדריך ←</em></button>';}).join('')+'</div>';ft=foot('');}
+  else{body='<button class="back" data-g="">→ כל המדריכים</button><div class="lead">'+G.ic+' '+esc(G.t)+'</div><div class="sub">'+esc(G.intro)+'</div>';
+   if(G.tracks)body+='<div class="trks">'+G.tracks.map(function(t){return '<div class="trk" style="--c:'+t.c+'"><div class="th"><b>'+esc(t.n)+'</b><em>'+esc(t.tag)+'</em></div><div class="tb"><span>בנוי מ:</span> '+esc(t.b)+'</div><div class="tp">'+esc(t.p)+'</div><div class="pc"><div><h5>✓ יתרונות</h5>'+t.pro.map(function(x){return '<p>'+esc(x)+'</p>';}).join('')+'</div><div><h5>✕ חסרונות</h5>'+t.con.map(function(x){return '<p>'+esc(x)+'</p>';}).join('')+'</div></div><div class="fit">מתאים ל'+esc(t.fit)+'</div></div>';}).join('')+'</div>';
+   if(G.steps)body+=(G.flow?'<div class="flow">'+G.flow.split('→').map(function(x){return '<span>'+esc(x.trim())+'</span>';}).join('<i>←</i>')+'</div>':'')+'<div class="steps2">'+G.steps.map(function(s,k){return '<div class="sp2"><span class="n">'+(k+1)+'</span><div><b>'+esc(s[0])+'</b><p>'+esc(s[1])+'</p></div></div>';}).join('')+'</div>';
+   body+='<div class="disc">ההסבר כללי ואינו מחליף בדיקה של הסכם המכר, תנאי הבנק או ייעוץ משפטי/פיננסי ספציפי לעסקה.</div>';
+   ft=foot('<button class="b pdf" data-a="gpdf">📄 PDF ממותג</button><button class="b wa" data-a="gwa" '+(c&&c.phone?'':'disabled')+'>שלח ללקוח בוואטסאפ</button>');}}
+ if(st.tab==='req'){var R=st.rq;var list=reqList();var types=Object.keys(DOCREQ).map(function(k){return '<button class="ch'+(R.type===k?' on':'')+'" data-rt="'+k+'">'+esc(DOCREQ[k].t)+'</button>';}).join('');
+  var tg=function(k,l){return '<button class="ch'+(R[k]?' on':'')+'" data-rk="'+k+'">'+(R[k]?'✓ ':'')+l+'</button>';};
+  body='<div class="lead">📨 בקשת מסמכים חכמה</div><div class="sub">בוחרים את סוג הלקוח — הרשימה נבנית לבד, ונשלחת בלחיצה</div><div class="grid"><div><div class="cd"><h3>סוג תעסוקה</h3><div class="chs">'+types+'</div></div><div class="cd"><h3>פרטי העסקה</h3><div class="chs"><button class="ch'+(R.prop==='second'?' on':'')+'" data-rp="second">🏠 יד שנייה</button><button class="ch'+(R.prop==='new'?' on':'')+'" data-rp="new">🏗️ מקבלן</button><button class="ch'+(R.prop==='none'?' on':'')+'" data-rp="none">🔍 טרם נמצא נכס</button></div><div class="chs" style="margin-top:8px">'+tg('two','שני לווים')+tg('kollel','לומד בכולל')+tg('bl','קצבת ביטוח לאומי')+tg('extra','הכנסה נוספת')+'</div></div></div>'
+   +'<div><div class="cd cl"><h3>הרשימה שתישלח <small>'+list.reduce(function(s,g){return s+g[1].length;},0)+' מסמכים</small></h3>'+list.map(function(g){return '<div class="rg"><h4>'+esc(g[0])+'</h4>'+g[1].map(function(x){return '<div class="ri">☐ '+esc(x)+'</div>';}).join('')+'</div>';}).join('')+'<div class="tip">📸 אפשר לצלם בטלפון ולשלוח — העיקר שיהיה ברור וקריא. נסח טאבו: אם יש בעיה בנסח / אין פרצלציה / אין היתר בנייה — חובה לעדכן אותי בכתב.</div></div></div></div>';
+  ft=foot('<button class="b pdf" data-a="rpdf">📄 רשימה כ-PDF</button><button class="b wa" data-a="rwa" '+(c&&c.phone?'':'disabled')+'>שלח בקשה בוואטסאפ</button>');}
+ if(st.tab==='portal'){var cc=c||{fn:'ישראל',ln:'ישראלי',stage:'איסוף מסמכים'};var si=Math.max(0,STG.indexOf(cc.stage));var lst=reqList();
+  body='<div class="lead">📱 אזור הלקוח — כך הלקוח יראה את התיק שלו</div><div class="sub">תצוגה מקדימה. העלאת מסמכים מהטלפון ישר לתיק תופעל אחרי החיבור לשרת (Supabase).</div><div class="pwrap"><div class="phone"><div class="pnotch"></div><div class="pscr"><div class="ph"><span class="pl">מ</span><div><b>'+esc(brand().co)+'</b><span>היועץ שלך: '+esc(brand().adv)+'</span></div></div><div class="phi">שלום '+esc(cc.fn||'')+' 👋</div><div class="ppc"><div class="ppl"><span>התקדמות התיק</span><b>שלב '+(si+1)+' מתוך 8</b></div><div class="pbar"><i style="width:'+Math.round((si+1)/8*100)+'%"></i></div><div class="pst">'+S[si].ic+' '+esc(S[si].t)+' — '+esc(S[si].sub)+'</div></div><div class="pcd"><h6>מה צריך ממך עכשיו</h6>'+lst.slice(0,2).map(function(g){return g[1].slice(0,2).map(function(x){return '<div class="pup"><span>'+esc(x)+'</span><button disabled>📷 צלם</button></div>';}).join('');}).join('')+'</div><div class="pcd"><h6>מדריכים בשבילך</h6>'+GUIDES.slice(0,3).map(function(x){return '<div class="pg2">'+x.ic+' '+esc(x.t)+'</div>';}).join('')+'</div><button class="pwa">💬 שאלה ליועץ</button></div></div><div class="pnote"><h3>מה הלקוח יקבל</h3><p>✓ קישור אישי, בלי סיסמה מסובכת</p><p>✓ רואה איפה התיק עומד, בשפה פשוטה</p><p>✓ מצלם ומעלה מסמכים — הם נכנסים לתיק שלך ומסומנים "התקבל"</p><p>✓ מדריכים והסברים לכל שלב</p><p>✓ חותם על טפסים מהטלפון</p><div class="tip">כל התוכן כבר מוכן במערכת — מה שחסר זה רק השרת שיקבל את הקבצים מהלקוח.</div></div></div>';ft=foot('');}
+ w.innerHTML='<div class="bx">'+head(c)+'<div class="bd">'+body+'</div>'+ft+'</div>';}
+function reqList(){var R=st.rq;var g=[];var base=DOCREQ[R.type].base.slice();if(!R.two)base=base.map(function(x){return x.replace(' של שני בני הזוג','').replace('שני בני הזוג','הלווה');});
+ g.push(['זיהוי והכנסות',base.concat(R.kollel?['אישור כולל עדכני עם סכומי הכנסה']:[],R.bl?['אישור מביטוח לאומי על קצבה לצמיתות']:[],R.extra?['אסמכתא לכל הכנסה נוספת (שכירות, עבודה נוספת, קצבה)']:[])]);
+ g.push(['חשבונות בנק',COMMON.slice()]);
+ if(R.prop==='second')g.push(['הנכס',['נסח טאבו עדכני','חוזה רכישה עדכני (אם יש)','דוח מש"ח — דיווח לרשות המסים (אם יש)']]);
+ if(R.prop==='new')g.push(['הנכס',['חוזה רכישה מהקבלן','נספחים ולוח תשלומים','דוח מש"ח — דיווח לרשות המסים (אם יש)']]);
+ return g;}
+function reqMsg(){var c=cl();var L=reqList();return 'היי '+((c&&c.fn)||'')+' 😊\nכדי להוציא אישור עקרוני מהבנקים, אני צריך את המסמכים הבאים:\n\n'+L.map(function(g){return '*'+g[0]+'*\n'+g[1].map(function(x){return '☐ '+x;}).join('\n');}).join('\n\n')+'\n\n📸 אפשר לצלם בטלפון ולשלוח לכאן — העיקר שיהיה קריא.\n'+brand().adv+' · '+brand().co;}
+function guideMsg(G){var c=cl();var t='היי '+((c&&c.fn)||'')+' 😊\nמצרף לך מדריך קצר: *'+G.t+'*\n'+G.intro+'\n';
+ if(G.tracks)t+='\n'+G.tracks.map(function(x){return '*'+x.n+'* — '+x.p+'\n✓ '+x.pro[0]+'\n✕ '+x.con[0];}).join('\n\n');
+ if(G.steps)t+='\n'+(G.flow?G.flow+'\n\n':'')+G.steps.map(function(s,k){return (k+1)+'. '+s[0];}).join('\n');
+ return t+'\n\nיש שאלות? אני כאן.\n'+brand().adv+' · '+brand().co;}
+function printHTML(title,inner){var b=brand(),c=cl();var p=document.getElementById('pg-print');if(!p){p=document.createElement('div');p.id='pg-print';document.body.appendChild(p);}
+ p.innerHTML='<div class="lh"><span class="lg">מ</span><div><b style="font:800 18px Heebo">'+esc(b.co)+'</b><div style="font:600 12px Assistant;color:#64748B">'+esc(b.adv)+' · יועץ משכנתאות מוסמך</div></div><div style="margin-inline-start:auto;font:600 12px Assistant;color:#64748B">'+new Date().toLocaleDateString('he-IL')+(c?'<br>לכבוד: '+esc((c.fn||'')+' '+(c.ln||'')):'')+'</div></div><h1>'+esc(title)+'</h1>'+inner+'<p style="color:#94A3B8;font-size:11px;margin-top:20px">ההסבר כללי ואינו מחליף ייעוץ מקצועי ספציפי לעסקה.</p>';setTimeout(function(){window.print();},80);}
+
+function msg(){var s=S[st.i],c=cl();var t='היי '+((c&&c.fn)||'')+' 😊\n*שלב '+(st.i+1)+' מתוך 8 — '+s.t+'*\n\n'+s.cl+'\n\n*מה צריך ממך:*\n'+s.need.map(function(n){return '• '+n;}).join('\n');
+ if(s.forms.length)t+='\n\n*הטפסים בשלב הזה:*\n'+s.forms.map(function(id){return '• '+F[id].t+' — '+F[id].say;}).join('\n');return t+'\n\n'+brand().adv+' · '+brand().co;}
+function pdf(){var s=S[st.i],c=cl(),b=brand();var p=document.getElementById('pg-print');if(!p){p=document.createElement('div');p.id='pg-print';document.body.appendChild(p);}
+ p.innerHTML='<div class="lh"><span class="lg">מ</span><div><b style="font:800 18px Heebo">'+esc(b.co)+'</b><div style="font:600 12px Assistant;color:#64748B">'+esc(b.adv)+' · יועץ משכנתאות</div></div><div style="margin-inline-start:auto;font:600 12px Assistant;color:#64748B">'+new Date().toLocaleDateString('he-IL')+(c?'<br>לכבוד: '+esc((c.fn||'')+' '+(c.ln||'')):'')+'</div></div>'
+  +'<h1>'+s.ic+' שלב '+(st.i+1)+' מתוך 8 — '+esc(s.t)+'</h1><p style="white-space:pre-wrap">'+esc(s.cl)+'</p><h2>מה צריך ממך</h2><ul>'+s.need.map(function(n){return '<li>'+esc(n)+'</li>';}).join('')+'</ul>'
+  +(s.forms.length?'<h2>הטפסים בשלב — בשפה פשוטה</h2>'+s.forms.map(function(id){var f=F[id];return '<p><b>'+esc(f.t)+'</b> — '+esc(f.say)+'<br><span style="color:#64748B">מי חותם: '+esc(f.who)+' · איפה: '+esc(f.where)+'</span></p>';}).join(''):'')
+  +'<h2>שאלות נפוצות</h2>'+s.faq.map(function(q){return '<p><b>'+esc(q[0])+'</b><br>'+esc(q[1])+'</p>';}).join('')+'<p style="color:#94A3B8;font-size:11px;margin-top:20px">ההסבר כללי ונועד להבנת התהליך. הפרטים המחייבים מופיעים במסמכי הבנק ובחוזים.</p>';
+ setTimeout(function(){window.print();},80);}
+function open(i){st.cid=null;try{st.cid=localStorage.getItem('perez_active_client_v1');}catch(e){}var c=cl();st.i=i!=null?i:(c?Math.max(0,STG.indexOf(c.stage)):0);var w=document.getElementById('pg');
+ if(!w){w=document.createElement('div');w.id='pg';document.body.appendChild(w);w.addEventListener('click',function(e){if(e.target===w){w.classList.remove('show');return;}var t=e.target.closest('[data-s],[data-a],[data-f],[data-tab],[data-g],[data-rt],[data-rk],[data-rp]');if(!t)return;
+  if(t.dataset.tab){st.tab=t.dataset.tab;st.g=null;render();return;}if(t.dataset.g!==undefined){st.g=t.dataset.g||null;render();w.querySelector('.bd').scrollTop=0;return;}if(t.dataset.rt){st.rq.type=t.dataset.rt;render();return;}if(t.dataset.rk){st.rq[t.dataset.rk]=!st.rq[t.dataset.rk];render();return;}if(t.dataset.rp){st.rq.prop=t.dataset.rp;render();return;}
+  if(t.dataset.s){st.i=+t.dataset.s;render();w.querySelector('.bd').scrollTop=0;return;}if(t.dataset.f){st.open[t.dataset.f]=!st.open[t.dataset.f];render();return;}
+  var a=t.dataset.a;if(a==='close')w.classList.remove('show');if(a==='prev'&&st.i>0){st.i--;render();}if(a==='next'&&st.i<S.length-1){st.i++;render();}if(a==='pdf')pdf();var c3=cl();var G3=GUIDES.find(function(x){return x.id===st.g;});
+  if(a==='gwa'&&c3&&G3){window.open(wa(c3.phone,guideMsg(G3)),'_blank');}
+  if(a==='gpdf'&&G3){var inner='<p>'+esc(G3.intro)+'</p>';if(G3.tracks)inner+=G3.tracks.map(function(t){return '<h2>'+esc(t.n)+' · '+esc(t.tag)+'</h2><p><b>בנוי מ:</b> '+esc(t.b)+'</p><p>'+esc(t.p)+'</p><p><b>יתרונות:</b> '+t.pro.map(esc).join(' · ')+'</p><p><b>חסרונות:</b> '+t.con.map(esc).join(' · ')+'</p><p><b>מתאים ל</b>'+esc(t.fit)+'</p>';}).join('');if(G3.steps)inner+=(G3.flow?'<p style="background:#F6F4FC;padding:8px 10px;border-radius:8px">'+esc(G3.flow)+'</p>':'')+'<ol>'+G3.steps.map(function(s){return '<li><b>'+esc(s[0])+'</b> — '+esc(s[1])+'</li>';}).join('')+'</ol>';printHTML(G3.t,inner);}
+  if(a==='rwa'&&c3){window.open(wa(c3.phone,reqMsg()),'_blank');DB.docTrack=DB.docTrack||{};var tt=DB.docTrack[c3.id]=DB.docTrack[c3.id]||{};var key=st.rq.type==='salaried'?'docs_salaried':'docs_self';if(!tt[key]||tt[key].s==='missing')tt[key]={s:'sent',d:new Date().toISOString().slice(0,10)};try{saveDB();toast('✓ הבקשה נפתחה בוואטסאפ · סומן "נשלח ללקוח" במעקב המסמכים');}catch(_){}}
+  if(a==='rpdf'){printHTML('רשימת מסמכים לאישור עקרוני — '+DOCREQ[st.rq.type].t,reqList().map(function(g){return '<h2>'+esc(g[0])+'</h2>'+g[1].map(function(x){return '<p>☐ '+esc(x)+'</p>';}).join('');}).join(''));}if(a==='wa'){var c2=cl();if(c2&&c2.phone){window.open(wa(c2.phone,msg()),'_blank');c2.lastContact=new Date().toISOString();try{saveDB();toast('✓ ההסבר נפתח בוואטסאפ');}catch(_){}}}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')w.classList.remove('show');});}
+ w.classList.add('show');render();}
+window.PEREZ_guide={open:open,forms:F,stages:S};
+setInterval(function(){try{var b=document.getElementById('active-client-bar');if(!b||b.className==='hidden')return;var acts=b.querySelector('.acb-actions');if(!acts||acts.querySelector('.pg-open'))return;var x=document.createElement('button');x.className='pg-open';x.type='button';x.innerHTML='📘 <span>מדריך שלב</span>';x.onclick=function(e){e.stopPropagation();open();};acts.insertBefore(x,acts.querySelector('.ai-open')||acts.firstChild);}catch(e){}},700);
+})();
 </script>
 </body>
 </html>
