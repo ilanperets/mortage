@@ -48086,7 +48086,7 @@ window.GZX_autosaveNow=asSave;
 var sampleFixed=false;
 function tick(){try{
  if(typeof SNPV_STATE==='undefined'||!gid('page-temahil'))return;
- if(!asRestored&&SNPV_STATE.mixes&&gid('snpv-demo')){if(asRestore())sampleFixed=true;}
+ if(!asRestored&&window.GZ_BW===false&&SNPV_STATE.mixes&&gid('snpv-demo')){if(asRestore())sampleFixed=true;}
  if(!sampleFixed){var m=SNPV_STATE.mixes&&SNPV_STATE.mixes.m1;if(m&&gid('snpv-demo')){sampleFixed=true;var T=target();if(isSample(m)&&T>0&&Math.abs(T-1200000)>1){m.tracks=defTracks();try{snpvRebuildRows();}catch(e){}try{snpvCompute();}catch(e){}}}}
  if(SNPV_STATE.bank){var m2=cur();if(m2&&!m2.bank)m2.bank=SNPV_STATE.bank;}
  var ki=document.querySelector('#snpv-demo .k63-inc');if(ki){var iv=num(ki.value);if(iv>0&&SNPV_STATE.income!==iv){SNPV_STATE.income=iv;try{snpvCompute();}catch(e){}}}
@@ -49925,6 +49925,184 @@ function tick(){try{tmBanner();}catch(e){}try{closedUi();}catch(e){}try{wrapAg()
 setInterval(tick,700);if(document.readyState!=='loading')tick();else document.addEventListener('DOMContentLoaded',tick);
 })();
 
+</script>
+<style id="goshen-v201">/* ===== V201 — בנאי: מסך נקי + כפתורי פעולה ברורים ===== */
+#gz-bw{display:flex;align-items:center;gap:14px 18px;flex-wrap:wrap;margin:0 0 14px;padding:16px 18px;border-radius:16px;font-family:Heebo,Assistant,sans-serif;background:#fff;border:1px solid #DED6F5;box-shadow:0 1px 3px rgba(16,24,40,.06)}
+#gz-bw.bw-free{background:linear-gradient(135deg,#F7F4FF,#FFFFFF);border:1.5px dashed #B9A9EE;padding:22px}
+#gz-bw.bw-cli{background:#FBFAFF}
+#gz-bw .tx{flex:1;min-width:240px;display:flex;flex-direction:column;gap:3px}
+#gz-bw .tx>b{font:800 16px Heebo,sans-serif;color:#1F1846}
+#gz-bw.bw-free .tx>b{font-size:18px}
+#gz-bw .tx>span{font:500 13.5px/1.55 Heebo,sans-serif;color:#5B5578}
+#gz-bw .tx span b{color:#1F1846;font-weight:800}
+#gz-bw .bt{display:flex;gap:8px;flex-wrap:wrap}
+#gz-bw .bt button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:42px;border:1.5px solid #CFC6EC;background:#fff;color:#241657;border-radius:12px;padding:0 16px;font:700 14px Heebo,sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+#gz-bw .bt button:hover{background:#F4F1FC;border-color:#3E2682}
+#gz-bw .bt button.p{background:#241657;border-color:#241657;color:#fff}
+#gz-bw .bt button.p:hover{background:#3E2682}
+#gz-bw .bt button.g{border-color:#D8C27A;background:#FFFBEF;color:#6B5313}
+#gz-bw .bt button small{font:500 11.5px Heebo,sans-serif;color:#8C7A4A;margin-top:1px}
+/* בלי מסלולים: לא מציגים "חסרים ₪…" */
+#page-temahil.gz-bw-none .mf-hint{display:none !important}
+@media(max-width:700px){#gz-bw{padding:14px}#gz-bw .bt{width:100%}#gz-bw .bt button{flex:1}}
+
+/* כפתורי השורה: פרעון · קיצור · פירוט · מחק — גלויים וברורים, בשתי שורות כדי שלא ייחתכו */
+html body #page-temahil #snpv-demo .trow .acts{display:grid !important;grid-template-columns:1fr 1fr;gap:5px !important;padding:0 4px !important;align-items:stretch;justify-content:stretch;width:auto;min-width:0}
+html body #page-temahil #snpv-demo .trow .acts .ract{height:28px;padding:0 6px !important;border:1.5px solid #B9ADE3 !important;background:#F6F3FF !important;color:#2E1F6B !important;border-radius:8px !important;font:700 12px Heebo,sans-serif !important;line-height:1 !important;cursor:pointer;white-space:nowrap}
+html body #page-temahil #snpv-demo .trow .acts .ract:hover{background:#3E2682 !important;border-color:#3E2682 !important;color:#fff !important}
+html body #page-temahil #snpv-demo .trow .acts .mp-xbtn{height:28px;min-width:0;width:auto;padding:0 6px;border:1.5px solid #D5D9E2 !important;background:#fff !important;color:#475467 !important;border-radius:8px !important;font:700 12px Heebo,sans-serif !important;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px}
+html body #page-temahil #snpv-demo .trow .acts .mp-xbtn::after{content:"פירוט";font:700 11.5px Heebo,sans-serif}
+html body #page-temahil #snpv-demo .trow .acts .mp-xbtn:hover{border-color:#3E2682 !important;color:#241657 !important}
+html body #page-temahil #snpv-demo .trow .acts .pv-xdel{position:static !important;width:auto !important;min-width:0 !important;height:28px !important;padding:0 6px !important;border:1.5px solid #F1B5AE !important;background:#FEF3F2 !important;color:#B42318 !important;border-radius:8px !important;font:700 12px Heebo,sans-serif !important;box-shadow:none !important;display:flex !important;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+html body #page-temahil #snpv-demo .trow .acts .pv-xdel::after{content:"מחק";font:700 12px Heebo,sans-serif}
+html body #page-temahil #snpv-demo .trow .acts .pv-xdel:hover{background:#D92D20 !important;border-color:#D92D20 !important;color:#fff !important}
+html body #page-temahil #snpv-demo .trow .acts .ract[data-act="prepay"]{order:1}
+html body #page-temahil #snpv-demo .trow .acts .ract[data-act="shorten"]{order:2}
+html body #page-temahil #snpv-demo .trow .acts .mp-xbtn{order:3}
+html body #page-temahil #snpv-demo .trow .acts .pv-xdel{order:4}
+/* הכפתורים היו שקופים (35%) עד ריחוף — עכשיו תמיד גלויים */
+html body #page-temahil #snpv-demo .trow .acts{opacity:1 !important}
+/* שכבה ישנה מסתירה כל ילד של לוח הבנייה חוץ מהבנאי — הכרטיס חייב להישאר גלוי */
+html body #page-temahil #gz-bw{display:flex !important}
+</style>
+<script id="goshen-v201-js">/* ===== V201 — בנאי תמהילים: מרחב עבודה לכל לקוח · נקי כשאין לקוח · כפתורי פעולה ברורים =====
+   שכבה מוסיפה בלבד. לא נוגעת במנוע החישוב ולא מוחקת נתונים.
+   - כל לקוח: השמירה האוטומטית של הבנאי נשמרת בנפרד (gz_bw_c<id>) וחוזרת רק אליו.
+   - בלי לקוח פעיל: הבנאי נפתח על 0 בלי מסלולים. עבודה חופשית נשמרת (gz_bw_free) וזמינה ב"המשך מאיפה שעצרת".
+   - לקוח בלי עבודה בבנאי: התמהיל האחרון ששמרת לתיק נטען; אם אין — סכומי התיק + מסלולים ריקים.
+   - השמירה הישנה (perez_snpv_autosave_v1) לא נמחקת — מועברת פעם אחת למרחב המתאים. */
+(function(){
+if(window.GZ_BW_LOADED)return;window.GZ_BW_LOADED=1;
+/* מתג חזרה: localStorage gz_bw_off=1 → הבנאי מתנהג בדיוק כמו ב-V200 */
+try{if(localStorage.getItem('gz_bw_off')==='1'){window.GZ_BW=false;return;}}catch(e){}
+var P='gz_bw_',loaded=null,busy=false,saveT=null,freeGo=false,lastAid;
+function gid(i){return document.getElementById(i);}
+function S(){return (typeof SNPV_STATE!=='undefined')?SNPV_STATE:null;}
+function num(v){var x=parseFloat(String(v==null?'':v).replace(/[^0-9.\-]/g,''));return isFinite(x)?x:0;}
+function nf(n){return Math.round(+n||0).toLocaleString('he-IL');}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toastX(m){try{toast(m);}catch(e){}}
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
+function lsSet(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}
+function clients(){return (typeof DB!=='undefined'&&DB.clients)||[];}
+function cl(id){if(id==null||id==='')return null;return clients().find(function(c){return String(c.id)===String(id);})||null;}
+function aid(){var v=null;try{v=localStorage.getItem('perez_active_client_v1');}catch(e){}return cl(v)?String(v):null;}
+function ctxNow(){var a=aid();return a?'c'+a:'free';}
+function cidOf(ctx){return ctx&&ctx!=='free'?ctx.slice(1):null;}
+function nm(c){return c?((c.fn||'')+' '+(c.ln||'')).trim()||('לקוח #'+c.id):'';}
+function nTracks(o){var m=o&&o.mixes||{};return Object.keys(m).reduce(function(a,k){return a+((m[k]&&m[k].tracks)||[]).length;},0);}
+function onPage(){var p=gid('page-temahil');return !!(p&&p.classList.contains('active'));}
+function uidX(){try{return uid();}catch(e){return Math.floor(Math.random()*1e9);}}
+
+function snap(){var s=S();if(!s||!s.mixes)return null;
+ return JSON.parse(JSON.stringify({v:2,ts:Date.now(),mixes:s.mixes,currentMixId:s.currentMixId,nextMixId:s.nextMixId,compareMixId:s.compareMixId,total:s.total,property:s.property,dealType:s.dealType,purpose:s.purpose,approvalDate:s.approvalDate,costs:s.costs,bank:s.bank,clientId:s.clientId,income:s.income}));}
+function save(ctx){ctx=ctx||loaded;if(!ctx||busy)return;var o=snap();if(!o)return;
+ if(ctx==='free'){if(!nTracks(o))return;o.clientId=null;}
+ else{o.clientId=cidOf(ctx);}
+ lsSet(P+ctx,o);}
+function queue(){if(!loaded)return;clearTimeout(saveT);saveT=setTimeout(function(){save(loaded);},600);}
+
+/* --- העברה חד-פעמית מהשמירה הישנה --- */
+function migrate(){try{if(localStorage.getItem(P+'mig'))return;localStorage.setItem(P+'mig','1');}catch(e){return;}
+ var o=lsGet('perez_snpv_autosave_v1');if(!o||!nTracks(o))return;
+ var k=(o.clientId!=null&&o.clientId!==''&&cl(o.clientId))?'c'+o.clientId:'free';
+ if(!lsGet(P+k))lsSet(P+k,o);}
+
+/* --- תמהיל שמור בתיק → מסלולים לבנאי --- */
+function fromSaved(c){var ms=((typeof DB!=='undefined'&&DB.temahilim)||[]).filter(function(x){return String(x.clientId)===String(c.id)&&(x.tracks||[]).length;});var mx=ms[ms.length-1];if(!mx)return null;
+ var TT=(typeof SNPV_TRACK_TYPES!=='undefined')?SNPV_TRACK_TYPES:{};
+ var tr=mx.tracks.filter(function(t){return t&&TT[t.type]&&+t.amount>0;}).map(function(t){return {id:uidX(),amort:t.amort||'shpitzer',type:t.type,amount:+t.amount,months:+t.months||(+t.years||20)*12,anchor:t.anchor!=null?t.anchor:null,spread:t.spread!=null?t.spread:null,rate:+t.rate||0,grace:+t.grace||0,freq:+t.freq||0};});
+ if(!tr.length)return null;
+ return {mixes:{current:{id:'current',title:'משכנתא נוכחית',isReference:true,tracks:[]},m1:{id:'m1',title:mx.title||'תמהיל 1',isReference:false,tracks:tr}},currentMixId:'m1',nextMixId:2,compareMixId:'',
+  total:num(c.loan)||num(mx.total),property:num(c.val)||num(mx.property),dealType:mx.dealType,bank:mx.bank,clientId:c.id,_from:'saved',_title:mx.title,_date:mx.date};}
+function clean(c){return {mixes:{current:{id:'current',title:'משכנתא נוכחית',isReference:true,tracks:[]},m1:{id:'m1',title:'תמהיל 1',isReference:false,tracks:[]}},currentMixId:'m1',nextMixId:2,compareMixId:'',
+ total:c?num(c.loan):0,property:c?num(c.val):0,costs:0,clientId:c?c.id:null,_from:'clean'};}
+
+function setV(id,v){var e=gid(id);if(!e)return;v=(v==null)?'':String(v);if(e.tagName==='SELECT'&&v!==''&&![].some.call(e.options,function(o){return o.value===v;})){var o=document.createElement('option');o.value=o.textContent=v;e.appendChild(o);}e.value=v;}
+function apply(o){var s=S();if(!s)return;busy=true;
+ try{s.mixes=o.mixes;var ids=Object.keys(o.mixes);s.currentMixId=o.mixes[o.currentMixId]?o.currentMixId:(ids.filter(function(k){return !o.mixes[k].isReference;})[0]||ids[0]);
+  s.nextMixId=Math.max(+o.nextMixId||2,ids.length+1);s.compareMixId=o.mixes[o.compareMixId]?o.compareMixId:'';
+  s.clientId=o.clientId!=null&&o.clientId!==''?(isNaN(+o.clientId)?o.clientId:+o.clientId):null;
+  ['purpose','approvalDate','income'].forEach(function(k){s[k]=o[k]!=null?o[k]:(k==='purpose'?s.purpose:null);});
+  setV('tm-total',num(o.total));setV('tm-property',num(o.property));setV('snpv-costs',num(o.costs));setV('snpv-compare-id',s.compareMixId);
+  if(o.dealType)setV('tm-deal-type',o.dealType);if(o.bank)setV('snpv-bank',o.bank);setV('tm-client',s.clientId==null?'':s.clientId);
+  var tl=gid('snpv-title');if(tl&&s.mixes[s.currentMixId])tl.value=s.mixes[s.currentMixId].title||'';
+  try{snpvRenderMixTabs();}catch(e){}try{snpvRebuildRows();}catch(e){}try{snpvCompute();}catch(e){}
+ }finally{busy=false;}}
+
+function load(ctx,why){var c=cl(cidOf(ctx)),o=null,msg='';
+ if(ctx==='free'){o=clean(null);freeGo=false;}
+ else{var ws=lsGet(P+ctx);
+  if(ws&&nTracks(ws)){o=ws;o.clientId=c.id;msg='✓ הבנאי של '+nm(c)+' נטען כמו שהשארת אותו';}
+  else{o=fromSaved(c);if(o)msg='✓ נטען התמהיל ששמרת בתיק של '+nm(c)+(o._title?' · '+o._title:'');
+   else{o=clean(c);msg='הבנאי של '+nm(c)+' נקי · הסכומים נלקחו מהתיק';}}}
+ apply(o);loaded=ctx;
+ /* מעבר ראשון לבנאי: עוד חישוב אחרי שהמסך סיים להיבנות, כדי שהשכבות הקיימות יסדרו את התצוגה */
+ [500,1500].forEach(function(t){setTimeout(function(){if(loaded===ctx)try{snpvCompute();}catch(e){}},t);});
+ if(why==='switch'&&msg)setTimeout(function(){toastX(msg);},250);
+ paint();}
+
+/* --- סנכרון: לקוח פעיל ↔ בנאי --- */
+function sync(why){var s=S();if(!s)return;try{if(typeof snpvInitState==='function'&&!Object.keys(s.mixes||{}).length)snpvInitState();}catch(e){}
+ if(!s.mixes||!Object.keys(s.mixes).length)return;
+ var ctx=ctxNow();
+ if(loaded===null){migrate();load(ctx,why==='first'?'first':'switch');return;}
+ if(ctx===loaded){if(why==='nav'||why==='first')refreshEmpty();return;}
+ var prev=loaded,prevO=snap();
+ /* עבודה חופשית שעוד לא שויכה → עוברת ללקוח שנבחר אם אין לו עבודה משלו */
+ if(prev==='free'&&prevO&&nTracks(prevO)&&!nTracks(lsGet(P+ctx))&&!fromSaved(cl(cidOf(ctx))||{id:'__'})){
+  save('free');loaded=ctx;var c=cl(cidOf(ctx));var s2=S();s2.clientId=c.id;setV('tm-client',c.id);
+  if(!num((gid('tm-total')||{}).value)&&c.loan)setV('tm-total',num(c.loan));if(!num((gid('tm-property')||{}).value)&&c.val)setV('tm-property',num(c.val));
+  try{snpvCompute();}catch(e){}save(ctx);toastX('✓ התמהיל החופשי שויך ל'+nm(c));paint();return;}
+ save(prev);load(ctx,'switch');}
+function refreshEmpty(){var s=S(),c=cl(cidOf(loaded));if(!s||!c||nTracks({mixes:s.mixes}))return;var L=num(c.loan),V=num(c.val),ch=false;
+ if(L&&num(s.total)!==L){setV('tm-total',L);ch=true;}if(V&&num(s.property)!==V){setV('tm-property',V);ch=true;}
+ if(ch){busy=true;try{snpvCompute();}catch(e){}busy=false;}}
+window.GZ_BW={sync:sync,save:function(){save(loaded);},ctx:function(){return loaded;},key:function(c){return P+(c||loaded);}};
+
+/* עטיפות: שינוי לקוח פעיל / מעבר לבנאי / כל חישוב → שמירה */
+function cp(a,b){Object.keys(a).forEach(function(k){if(!(k in b))try{b[k]=a[k];}catch(e){}});}
+(function wrap(){var ok=true;
+ if(typeof window.PEREZ_acb_set==='function'&&!window.PEREZ_acb_set.__bw){var o1=window.PEREZ_acb_set;window.PEREZ_acb_set=function(){var r=o1.apply(this,arguments);try{sync('acb');paint();}catch(e){}return r;};window.PEREZ_acb_set.__bw=1;cp(o1,window.PEREZ_acb_set);}else if(typeof window.PEREZ_acb_set!=='function')ok=false;
+ if(typeof window.nav==='function'&&!window.nav.__bw){var o2=window.nav;window.nav=function(pg){var r=o2.apply(this,arguments);try{if(pg==='temahil')sync('nav');}catch(e){}return r;};window.nav.__bw=1;cp(o2,window.nav);}else if(typeof window.nav!=='function')ok=false;
+ if(typeof window.snpvCompute==='function'&&!window.snpvCompute.__bw){var o3=window.snpvCompute;window.snpvCompute=function(){var r=o3.apply(this,arguments);try{if(!busy)queue();paint();}catch(e){}return r;};window.snpvCompute.__bw=1;cp(o3,window.snpvCompute);}else if(typeof window.snpvCompute!=='function')ok=false;
+ if(!ok)setTimeout(wrap,400);})();
+
+/* בחירת לקוח בתוך הבנאי ("שיוך לקוח") = מעבר לתיק שלו */
+document.addEventListener('change',function(e){var t=e.target;if(!t||!t.matches||!t.matches('#snpv-demo select[data-pf="client"]'))return;var v=t.value;if(!v||!cl(v))return;
+ if(String(v)===String(aid()))return;
+ setTimeout(function(){try{if(typeof window.PEREZ_acb_set==='function')PEREZ_acb_set(+v||v);else{localStorage.setItem('perez_active_client_v1',String(v));sync('acb');}}catch(x){}},0);},false);
+window.addEventListener('beforeunload',function(){try{save(loaded);}catch(e){}});
+
+/* --- מסך ריק / פס מצב --- */
+function paint(){var pg=gid('page-temahil');if(!pg)return;var d=gid('snpv-demo');var s=S();if(!d||!s||!s.mixes)return;
+ var cur=s.mixes[s.currentMixId];var empty=!cur||!(cur.tracks||[]).length;var all=nTracks({mixes:s.mixes});
+ pg.classList.toggle('gz-bw-none',empty);
+ var ctx=loaded,c=cl(cidOf(ctx));var box=gid('gz-bw');var html='',kind='';
+ if(ctx==='free'&&!all&&!freeGo){kind='bw-free';var fw=lsGet(P+'free');var cont='';
+  if(fw&&nTracks(fw)){var n=nTracks(fw);var dt=new Date(fw.ts||0);var when=isNaN(dt)?'':(' · נשמר '+dt.toLocaleDateString('he-IL')+' '+dt.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}));
+   cont='<button type="button" class="g" data-bw="cont">↩ המשך מאיפה שעצרת<small>'+(n===1?'מסלול אחד':n+' מסלולים')+' · ₪'+nf(fw.total)+when+'</small></button>';}
+  html='<div class="tx"><b>הבנאי נקי — אין לקוח פעיל</b><span>בחר לקוח כדי לעבוד על התמהיל שלו, או התחל תמהיל חופשי בלי תיק.</span></div><div class="bt"><button type="button" class="p" data-bw="pick">👤 בחר לקוח</button><button type="button" data-bw="free">＋ התחל תמהיל חופשי</button>'+cont+'</div>';}
+ else if(c&&empty){kind='bw-cli';var L=num(c.loan),V=num(c.val);
+  html='<div class="tx"><b>'+esc(nm(c))+' · '+(cur&&cur.isReference?'משכנתא נוכחית — עוד אין מסלולים':'עוד אין מסלולים בתמהיל')+'</b><span>'+(L||V?('מהתיק: '+(L?'גובה משכנתא <b>₪'+nf(L)+'</b>':'')+(L&&V?' · ':'')+(V?'שווי נכס <b>₪'+nf(V)+'</b>':'')+'. הוסף מסלולים כדי לבנות את התמהיל.'):'בתיק עוד אין גובה משכנתא ושווי נכס — הזן אותם בפרטי התמהיל, ואז הוסף מסלולים.')+'</span></div><div class="bt"><button type="button" class="p" data-bw="add">＋ הוסף מסלול</button></div>';}
+ if(!html){if(box)box.remove();return;}
+ if(!box){box=document.createElement('div');box.id='gz-bw';}
+ if(box.parentNode!==d.parentNode)d.parentNode.insertBefore(box,d);
+ box.className=kind;if(box._h!==html){box.innerHTML=html;box._h=html;}}
+document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#gz-bw [data-bw]');if(!b)return;e.preventDefault();var a=b.dataset.bw;
+ if(a==='pick'){var t=document.querySelector('#active-client-bar [onclick*="PEREZ_acb_toggle"]');setTimeout(function(){if(t)t.click();else if(typeof window.PEREZ_acb_toggle==='function')PEREZ_acb_toggle({stopPropagation:function(){},preventDefault:function(){}});},30);}
+ if(a==='free'){freeGo=true;paint();var i=document.querySelector('#snpv-demo [data-pf="total"]');if(i){i.scrollIntoView({block:'center',behavior:'smooth'});setTimeout(function(){try{i.focus();i.select();}catch(x){}},300);}toastX('הזן גובה משכנתא ושווי נכס, ואז הוסף מסלולים');}
+ if(a==='cont'){var fw=lsGet(P+'free');if(fw&&nTracks(fw)){fw.clientId=null;apply(fw);freeGo=true;paint();toastX('✓ העבודה החופשית נטענה');}}
+ if(a==='add'){try{snpvAddTrack();}catch(x){}}
+},true);
+
+/* --- לולאה: גיבוי למקרים שהלקוח הפעיל השתנה בלי הפונקציות העטופות --- */
+function tick(){try{var s=S();if(!s||!s.mixes)return;var a=aid();
+ if(onPage()&&gid('snpv-demo')){if(loaded===null||a!==lastAid)sync(loaded===null?'first':'tick');paint();}
+ else if(loaded!==null&&a!==lastAid)sync('tick');
+ lastAid=a;}catch(e){}}
+setInterval(tick,500);
+})();
 </script>
 </body>
 </html>
